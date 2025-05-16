@@ -1,0 +1,22 @@
+{
+  "name": "estudiapp",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tailwindcss -i ./input.css -o ./styles.css",
+    "watch": "npx tailwindcss -i ./input.css -o ./styles.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.3.3"
+  },
+  "dependencies": {
+    "firebase": "^11.7.3"
+  }
+}
