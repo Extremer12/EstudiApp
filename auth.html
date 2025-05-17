@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Acceso a EstudiApp - Organizador Estudiantil">
+    <meta name="keywords" content="Login, Registro, EstudiApp, Organizador Estudiantil">
+    <meta name="author" content="Cristian Bordón">
+    <title>Acceso - EstudiApp</title>
+    <link rel="stylesheet" href="auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Partículas de fondo -->
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <!-- Logo y título -->
+        <div class="logo-container">
+            <div>
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>EstudiApp</h1>
+            <p>Tu organizador estudiantil inteligente</p>
+        </div>
+        
+        <!-- Tarjeta de autenticación -->
+        <div class="auth-container">
+            <!-- Pestañas de navegación -->
+            <div>
+                <button id="login-tab-btn">
+                    <i class="fas fa-sign-in-alt"></i>Iniciar Sesión
+                </button>
+                <button id="register-tab-btn">
+                    <i class="fas fa-user-plus"></i>Registrarse
+                </button>
+            </div>
+            
+            <!-- Panel de Login -->
+            <div id="login-panel">
+                <h2>Bienvenido de nuevo</h2>
+                <div id="login-error"></div>
+                
+                <form id="login-form">
+                    <div>
+                        <label for="login-email">Correo electrónico</label>
+                        <div>
+                            <div>
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <input type="email" id="login-email" required placeholder="tucorreo@ejemplo.com">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="login-password">Contraseña</label>
+                        <div>
+                            <div>
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <input type="password" id="login-password" required placeholder="Tu contraseña">
+                            <button type="button" class="toggle-password" title="Mostrar/ocultar contraseña" aria-label="Mostrar u ocultar contraseña">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div>
+                            <input id="remember-me" type="checkbox">
+                            <label for="remember-me">
+                                Recordarme
+                            </label>
+                        </div>
+                        <a href="#">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
+                    
+                    <button type="submit">
+                        <i class="fas fa-sign-in-alt"></i>Iniciar Sesión
+                    </button>
+                </form>
+                
+                <div>
+                    <p>¿No tienes una cuenta? <a href="#" id="go-to-register">Regístrate</a></p>
+                </div>
+                
+                <div>
+                    <div></div>
+                    <span>o continúa con</span>
+                    <div></div>
+                </div>
+                
+                <div>
+                    <button type="button" title="Iniciar sesión con Google" aria-label="Iniciar sesión con Google">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button type="button" title="Iniciar sesión con Facebook" aria-label="Iniciar sesión con Facebook">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Panel de Registro -->
+            <div id="register-panel">
+                <h2>Crea tu cuenta</h2>
+                <div id="register-error"></div>
+                
+                <form id="register-form">
+                    <div>
+                        <label for="register-name">Nombre completo</label>
+                        <div>
+                            <div>
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <input type="text" id="register-name" required placeholder="Tu nombre">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="register-email">Correo electrónico</label>
+                        <div>
+                            <div>
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <input type="email" id="register-email" required placeholder="tucorreo@ejemplo.com">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="register-password">Contraseña</label>
+                        <div>
+                            <div>
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <input type="password" id="register-password" required placeholder="Crea una contraseña segura">
+                            <button type="button" class="toggle-password" title="Mostrar/ocultar contraseña" aria-label="Mostrar u ocultar contraseña">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="register-confirm-password">Confirmar contraseña</label>
+                        <div>
+                            <div>
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <input type="password" id="register-confirm-password" required placeholder="Repite tu contraseña">
+                            <button type="button" class="toggle-password" title="Mostrar/ocultar contraseña" aria-label="Mostrar u ocultar contraseña">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <input id="terms" type="checkbox" required>
+                        <label for="terms">
+                            Acepto los <a href="#">términos y condiciones</a>
+                        </label>
+                    </div>
+                    
+                    <button type="submit">
+                        <i class="fas fa-user-plus"></i>Crear Cuenta
+                    </button>
+                </form>
+                
+                <div>
+                    <p>¿Ya tienes una cuenta? <a href="#" id="go-to-login">Inicia sesión</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div>
+            <p>© 2023 EstudiApp. Todos los derechos reservados.</p>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script type="module" src="./js/auth.js"></script>
+    <script>
+        // Crear partículas de fondo
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Tamaño aleatorio
+                const size = Math.random() * 10 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Posición aleatoria
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Retraso aleatorio para la animación
+                particle.style.animationDelay = `${Math.random() * 15}s`;
+                
+                // Duración aleatoria para la animación
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                
+                // Opacidad aleatoria
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Configurar cambio de pestañas
+            document.getElementById('login-tab-btn').addEventListener('click', function() {
+                showLoginPanel();
+            });
+            
+            document.getElementById('register-tab-btn').addEventListener('click', function() {
+                showRegisterPanel();
+            });
+            
+            document.getElementById('go-to-register').addEventListener('click', function(e) {
+                e.preventDefault();
+                showRegisterPanel();
+            });
+            
+            document.getElementById('go-to-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                showLoginPanel();
+            });
+            
+            function showLoginPanel() {
+                document.getElementById('login-tab-btn').classList.add('login-tab-active');
+                document.getElementById('register-tab-btn').classList.remove('login-tab-active');
+                document.getElementById('login-panel').classList.remove('hidden');
+                document.getElementById('register-panel').classList.add('hidden');
+            }
+            
+            function showRegisterPanel() {
+                document.getElementById('register-tab-btn').classList.add('login-tab-active');
+                document.getElementById('login-tab-btn').classList.remove('login-tab-active');
+                document.getElementById('register-panel').classList.remove('hidden');
+                document.getElementById('login-panel').classList.add('hidden');
+            }
+            
+            // Configurar botones para mostrar/ocultar contraseña
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('input');
+                    const icon = this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

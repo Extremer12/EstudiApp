@@ -1,0 +1,418 @@
+/* Estilos para la página de autenticación */
+
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Contenedor principal */
+.container {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+}
+
+/* Partículas de fondo */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    animation: float 15s infinite linear;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-100px) translateX(100px) rotate(180deg);
+    }
+    100% {
+        transform: translateY(0) translateX(0) rotate(360deg);
+    }
+}
+
+/* Logo y título */
+.logo-container {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.logo-container div {
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 15px;
+}
+
+.logo-container i {
+    font-size: 40px;
+}
+
+.logo-container h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.logo-container p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Contenedor de autenticación */
+.auth-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+}
+
+/* Pestañas de navegación */
+.auth-container > div:first-child {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.auth-container > div:first-child button {
+    flex: 1;
+    padding: 15px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-container > div:first-child button i {
+    margin-right: 8px;
+}
+
+.auth-container > div:first-child button:hover {
+    background-color: #f9fafb;
+}
+
+.login-tab-active {
+    color: #4f46e5 !important;
+    border-bottom: 3px solid #4f46e5;
+}
+
+/* Paneles de login y registro */
+#login-panel, #register-panel {
+    padding: 30px;
+}
+
+#login-panel.hidden, #register-panel.hidden {
+    display: none;
+}
+
+.panel-animation {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#login-panel h2, #register-panel h2 {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Mensajes de error */
+#login-error, #register-error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    display: none;
+}
+
+#login-error:not(.hidden), #register-error:not(.hidden) {
+    display: block;
+}
+
+/* Formularios */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+form > div {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+form > div > div {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+form > div > div > div {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background-color: #f3f4f6;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4f46e5;
+    border: 1px solid #d1d5db;
+    border-right: none;
+}
+
+form input[type="email"], 
+form input[type="password"],
+form input[type="text"] {
+    flex: 1;
+    padding: 12px 12px 12px 50px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+form input[type="email"]:focus, 
+form input[type="password"]:focus,
+form input[type="text"]:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+/* Checkbox y enlaces */
+form > div:nth-child(3) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+form > div:nth-child(3) > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+form > div:nth-child(3) a {
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+form > div:nth-child(3) a:hover {
+    text-decoration: underline;
+}
+
+/* Botones de envío */
+form button[type="submit"] {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+form button[type="submit"]:hover {
+    background-color: #4338ca;
+}
+
+/* Enlaces de cambio de panel */
+#login-panel > div, #register-panel > div {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+#login-panel > div a, #register-panel > div a {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+#login-panel > div a:hover, #register-panel > div a:hover {
+    text-decoration: underline;
+}
+
+/* Separador "o continúa con" */
+#login-panel > div:nth-child(4) {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    color: #9ca3af;
+}
+
+#login-panel > div:nth-child(4) > div {
+    flex: 1;
+    height: 1px;
+    background-color: #e5e7eb;
+}
+
+#login-panel > div:nth-child(4) > span {
+    padding: 0 15px;
+    font-size: 0.9rem;
+}
+
+/* Botones de redes sociales */
+#login-panel > div:nth-child(5) {
+    display: flex;
+    gap: 10px;
+}
+
+#login-panel > div:nth-child(5) button {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: white;
+    color: #4b5563;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#login-panel > div:nth-child(5) button:hover {
+    background-color: #f9fafb;
+}
+
+#login-panel > div:nth-child(5) button i.fa-google {
+    color: #ea4335;
+}
+
+#login-panel > div:nth-child(5) button i.fa-facebook-f {
+    color: #1877f2;
+}
+
+/* Checkbox de términos y condiciones */
+#register-panel form > div:nth-child(5) {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+#register-panel form > div:nth-child(5) a {
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+#register-panel form > div:nth-child(5) a:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+.container > div:last-child {
+    margin-top: 30px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .auth-container {
+        max-width: 100%;
+    }
+    
+    #login-panel, #register-panel {
+        padding: 20px;
+    }
+    
+    .logo-container h1 {
+        font-size: 2rem;
+    }
+    
+    .logo-container div {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .logo-container i {
+        font-size: 30px;
+    }
+}

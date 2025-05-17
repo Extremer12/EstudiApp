@@ -92,3 +92,34 @@
     background-color: #4b5563;
     color: #e5e7eb;
 }
+
+/* Estilos específicos para el menú desplegable */
+#user-dropdown {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#user-dropdown.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#user-dropdown > div {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+#user-dropdown.show > div {
+    transform: translateX(0);
+}
+
+/* Asegurarse que el botón de cerrar sesión sea visible */
+#logout-button {
+    display: block;
+}
+
+#logout-button.hidden {
+    display: none;
+}
+

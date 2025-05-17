@@ -9,41 +9,7 @@
     <title>EstudiApp - Organizador Estudiantil</title>
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Animaciones personalizadas */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        
-        /* Scroll personalizado */
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .custom-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        
-        /* Transición para modales */
-        .modal-transition {
-            transition: all 0.3s ease;
-        }
-    </style>
+
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
     <!-- Barra de navegación -->
@@ -57,9 +23,43 @@
                 <button id="theme-toggle" class="p-2 rounded-full hover:bg-indigo-700" aria-label="Cambiar tema">
                     <i class="fas fa-moon"></i>
                 </button>
-                <button id="user-menu" class="p-2 rounded-full hover:bg-indigo-700" aria-label="Menú de usuario">
-                    <i class="fas fa-user"></i>
-                </button>
+                <div class="relative">
+                    <button id="user-menu" class="p-2 rounded-full hover:bg-indigo-700" aria-label="Menú de usuario" title="Abrir menú de usuario">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <!-- Menú desplegable -->
+                    <div id="user-dropdown" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-end">
+                        <div class="w-64 h-full bg-white dark:bg-gray-800 shadow-lg transform transition-all duration-300 ease-in-out">
+                            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Menú</h3>
+                                <button id="close-menu" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" title="Cerrar menú" aria-label="Cerrar menú">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div id="user-status" class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 hidden">
+                                <p class="font-medium">Usuario:</p>
+                                <p id="user-email" class="truncate">usuario@ejemplo.com</p>
+                            </div>
+                            <div class="py-2">
+                                <a href="#" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-user-circle mr-2"></i>Perfil
+                                </a>
+                                <a href="#" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-cog mr-2"></i>Configuración
+                                </a>
+                                <a href="#" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-donate mr-2"></i>Donar
+                                </a>
+                                <a href="#" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-question-circle mr-2"></i>Preguntas frecuentes
+                                </a>
+                                <button id="logout-button" class="w-full text-left block px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Cerrar sesión
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -219,43 +219,6 @@
             <div class="bg-white rounded-lg shadow">
                 <div class="p-4 border-b border-gray-200">
                     <h3 class="font-semibold text-gray-700">Próximos exámenes</h3>
-                </div>
-                <div class="p-4">
-                    <div class="border-l-4 border-indigo-500 pl-4 mb-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h4 class="font-bold">Matemáticas - Parcial 1</h4>
-                                <p class="text-sm text-gray-600">17 Oct 2023 - 08:00 AM</p>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button class="text-indigo-600 hover:text-indigo-800" aria-label="Editar examen de Matemáticas">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="text-red-600 hover:text-red-800" aria-label="Eliminar examen de Matemáticas">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <p class="text-sm mt-1 text-gray-500">Aula 302 - Duración: 2 horas</p>
-                    </div>
-                    
-                    <div class="border-l-4 border-red-500 pl-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h4 class="font-bold">Historia - Examen Final</h4>
-                                <p class="text-sm text-gray-600">25 Oct 2023 - 10:00 AM</p>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button class="text-indigo-600 hover:text-indigo-800" aria-label="Editar examen de Historia">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="text-red-600 hover:text-red-800" aria-label="Eliminar examen de Historia">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <p class="text-sm mt-1 text-gray-500">Aula 105 - Duración: 3 horas</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -436,33 +399,46 @@
             </main>
             
             <!-- Modales -->
-            <!-- Modal de Tarea -->
+            <!-- Modal para añadir tarea -->
             <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
                 <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform scale-95 transition-all modal-transition">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-4">Añadir Nueva Tarea</h3>
                         
-                        <div class="mb-4">
-                            <label for="task-title" class="block text-sm font-medium text-gray-700 mb-1">Título</label>
-                            <input type="text" id="task-title" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Título de la tarea">
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="task-due-date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de entrega</label>
-                            <input type="date" id="task-due-date" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="task-subject" class="block text-sm font-medium text-gray-700 mb-1">Materia (opcional)</label>
-                            <select id="task-subject" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="">Seleccionar materia</option>
-                            </select>
-                        </div>
-                        
-                        <div class="flex justify-end space-x-2">
-                            <button id="cancel-task" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Cancelar</button>
-                            <button id="save-task" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Guardar</button>
-                        </div>
+                        <form id="add-task-form">
+                            <div class="mb-4">
+                                <label for="task-title" class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                                <input type="text" id="task-title" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Título de la tarea" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="task-description" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                                <textarea id="task-description" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Descripción de la tarea"></textarea>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="task-due-date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de entrega</label>
+                                <input type="date" id="task-due-date" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="task-subject" class="block text-sm font-medium text-gray-700 mb-1">Materia</label>
+                                <select id="task-subject" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">Seleccionar materia</option>
+                                    <!-- Las opciones se cargarán dinámicamente -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4 flex items-center">
+                                <input type="checkbox" id="task-important" class="mr-2">
+                                <label for="task-important" class="text-sm font-medium text-gray-700">Marcar como importante</label>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" id="cancel-task" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Cancelar</button>
+                                <button type="button" id="save-task" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Guardar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -534,66 +510,109 @@
 
             <!-- Modal de Login/Registro -->
             <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-                <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 modal-transition">
-                    <div class="flex border-b border-gray-200">
-                        <button id="login-tab" class="flex-1 py-3 font-medium text-center border-b-2 border-indigo-500">Iniciar Sesión</button>
-                        <button id="register-tab" class="flex-1 py-3 font-medium text-center text-gray-500">Registrarse</button>
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300 modal-transition overflow-hidden">
+                    <!-- Cabecera con pestañas -->
+                    <div class="flex bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                        <button id="login-tab" class="flex-1 py-4 font-medium text-center transition-all duration-200 hover:bg-white/10">Iniciar Sesión</button>
+                        <button id="register-tab" class="flex-1 py-4 font-medium text-center transition-all duration-200 hover:bg-white/10">Registrarse</button>
                     </div>
                     
                     <!-- Panel de Login -->
-                    <div id="login-panel" class="p-6">
-                        <form id="login-form">
-                            <div class="mb-4">
-                                <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-                                <input type="email" id="login-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    <div id="login-panel" class="p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">¡Bienvenido de nuevo!</h2>
+                        <div id="login-error" class="mb-6 hidden bg-red-100 text-red-700 p-4 rounded-lg text-sm border-l-4 border-red-500"></div>
+                        <form id="login-form" class="space-y-5">
+                            <div class="mb-5">
+                                <label for="login-email" class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-indigo-500"></i>
+                                    </div>
+                                    <input type="email" id="login-email" class="w-full border border-gray-300 rounded-lg pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" required placeholder="tu@email.com">
+                                </div>
                             </div>
                             
                             <div class="mb-6">
-                                <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                                <input type="password" id="login-password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                            </div>
-                            
-                            <div class="flex justify-between items-center mb-6">
-                                <div class="flex items-center">
-                                    <input type="checkbox" id="remember-me" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                    <label for="remember-me" class="ml-2 block text-sm text-gray-700">Recordarme</label>
+                                <div class="flex justify-between mb-2">
+                                    <label for="login-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                                    <a href="#" class="text-xs text-indigo-600 hover:text-indigo-800 transition-colors duration-200">¿Olvidaste tu contraseña?</a>
                                 </div>
-                                <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">¿Olvidaste tu contraseña?</a>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-indigo-500"></i>
+                                    </div>
+                                    <input type="password" id="login-password" class="w-full border border-gray-300 rounded-lg pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" required placeholder="••••••••">
+                                </div>
                             </div>
                             
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Iniciar Sesión</button>
+                            <div class="flex items-center mb-6">
+                                <input id="remember-me" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-700">Recordarme</label>
+                            </div>
+                            
+                            <div class="flex space-x-3">
+                                <button type="button" id="cancel-login" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">Cancelar</button>
+                                <button type="submit" class="flex-1 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">Iniciar Sesión</button>
+                            </div>
                         </form>
                     </div>
                     
                     <!-- Panel de Registro -->
-                    <div id="register-panel" class="p-6 hidden">
-                        <form id="register-form">
-                            <div class="mb-4">
-                                <label for="register-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
-                                <input type="text" id="register-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    <div id="register-panel" class="p-8 hidden">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Crea tu cuenta</h2>
+                        <div id="register-error" class="mb-6 hidden bg-red-100 text-red-700 p-4 rounded-lg text-sm border-l-4 border-red-500"></div>
+                        <form id="register-form" class="space-y-5">
+                            <div class="mb-5">
+                                <label for="register-name" class="block text-sm font-medium text-gray-700 mb-2">Nombre completo</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-indigo-500"></i>
+                                    </div>
+                                    <input type="text" id="register-name" class="w-full border border-gray-300 rounded-lg pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" required placeholder="Tu nombre">
+                                </div>
                             </div>
                             
-                            <div class="mb-4">
-                                <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-                                <input type="email" id="register-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <div class="mb-5">
+                                <label for="register-email" class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-indigo-500"></i>
+                                    </div>
+                                    <input type="email" id="register-email" class="w-full border border-gray-300 rounded-lg pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" required placeholder="tu@email.com">
+                                </div>
                             </div>
                             
-                            <div class="mb-4">
-                                <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                                <input type="password" id="register-password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            <div class="mb-5">
+                                <label for="register-password" class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-indigo-500"></i>
+                                    </div>
+                                    <input type="password" id="register-password" class="w-full border border-gray-300 rounded-lg pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" required placeholder="••••••••">
+                                </div>
                             </div>
                             
                             <div class="mb-6">
-                                <label for="register-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
-                                <input type="password" id="register-confirm-password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                <label for="register-confirm-password" class="block text-sm font-medium text-gray-700 mb-2">Confirmar contraseña</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-indigo-500"></i>
+                                    </div>
+                                    <input type="password" id="register-confirm-password" class="w-full border border-gray-300 rounded-lg pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" required placeholder="••••••••">
+                                </div>
                             </div>
                             
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Crear Cuenta</button>
+                            <div class="flex space-x-3">
+                                <button type="button" id="cancel-register" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">Cancelar</button>
+                                <button type="submit" class="flex-1 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">Crear Cuenta</button>
+                            </div>
                         </form>
                     </div>
-                    
-                    <div class="p-4 border-t border-gray-200 text-center">
-                        <button id="close-login-modal" class="text-gray-500 hover:text-gray-700">Cerrar</button>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-200 text-center">
+                        <button id="close-login-modal" class="text-indigo-600 hover:text-indigo-800 font-medium">Cerrar</button>
                     </div>
                 </div>
             </div>

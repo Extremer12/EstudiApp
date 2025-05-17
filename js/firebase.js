@@ -33,7 +33,7 @@ export function getCurrentUser() {
 }
 
 // Funciones de autenticación
-async function registerUser(email, password) {
+export async function registerUser(email, password) {
     try {
         // Verificar si estamos en desarrollo local
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -41,13 +41,14 @@ async function registerUser(email, password) {
         if (isLocalhost) {
             console.log("Modo de desarrollo local: simulando registro de usuario");
             // Simular un registro exitoso en desarrollo local
+            currentUser = { 
+                uid: 'local-user-' + Date.now(),
+                email: email,
+                displayName: email.split('@')[0]
+            };
             return { 
                 success: true, 
-                user: { 
-                    uid: 'local-user-' + Date.now(),
-                    email: email,
-                    displayName: email.split('@')[0]
-                } 
+                user: currentUser
             };
         }
         
@@ -69,7 +70,7 @@ async function registerUser(email, password) {
     }
 }
 
-async function loginUser(email, password) {
+export async function loginUser(email, password) {
     try {
         // Verificar si estamos en desarrollo local
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -103,8 +104,17 @@ async function loginUser(email, password) {
     }
 }
 
-async function logoutUser() {
+export async function logoutUser() {
     try {
+        // Si estamos en desarrollo local
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        if (isLocalhost) {
+            console.log("Modo de desarrollo local: simulando cierre de sesión");
+            currentUser = null;
+            return { success: true };
+        }
+        
         await signOut(auth);
         return { success: true };
     } catch (error) {
@@ -287,13 +297,8 @@ async function deleteExam(examId) {
     }
 }
 
-// Exportar funciones y variables
+// Exportar todas las funciones necesarias
 export {
-    auth,
-    currentUser,
-    registerUser,
-    loginUser,
-    logoutUser,
     getTasks,
     saveTasks,
     updateTask,

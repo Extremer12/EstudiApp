@@ -22,6 +22,7 @@ window.addExam = addExam;
 window.removeExam = removeExam;
 window.addSubject = addSubject;
 window.removeSubject = removeSubject;
+window.logoutUser = handleLogout; // Agregar función de cierre de sesión al ámbito global
 
 // Inicialización de la aplicación
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,9 +50,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configurar botón de usuario
     const userMenuBtn = document.getElementById('user-menu');
     if (userMenuBtn) {
-        userMenuBtn.addEventListener('click', () => {
-            showModal('login-modal');
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar que el clic se propague
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.toggle('hidden');
+            
+            // Agregar animación
+            setTimeout(() => {
+                if (!dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('show');
+                } else {
+                    dropdown.classList.remove('show');
+                }
+            }, 10);
         });
+        
+        // Cerrar el menú al hacer clic fuera de él
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('user-dropdown');
+            if (!dropdown.contains(e.target) && e.target !== userMenuBtn) {
+                dropdown.classList.remove('show');
+                setTimeout(() => {
+                    dropdown.classList.add('hidden');
+                }, 200);
+            }
+        });
+        
+        // Añadir evento al botón de cerrar
+        const closeMenuBtn = document.getElementById('close-menu');
+        if (closeMenuBtn) {
+            closeMenuBtn.addEventListener('click', () => {
+                const dropdown = document.getElementById('user-dropdown');
+                dropdown.classList.remove('show');
+                setTimeout(() => {
+                    dropdown.classList.add('hidden');
+                }, 200);
+            });
+        }
     }
 
     // Configurar botones para añadir elementos
@@ -62,6 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Configurar herramientas de IA
     setupAITools();
+    
+    // Configurar formularios de autenticación
+    setupAuthForms();
+    
+    // Verificar estado de autenticación
+    checkAuthState();
     
     // Cargar datos iniciales
     loadInitialData();
@@ -89,6 +130,11 @@ function setupAddButtons() {
     const addSubjectBtn = document.getElementById('add-subject-btn');
     if (addSubjectBtn) {
         addSubjectBtn.addEventListener('click', () => {
+            const modal = document.getElementById('add-subject-modal');
+            if (!modal) {
+                console.error('No se encontró el modal de añadir materia');
+                return;
+            }
             showModal('add-subject-modal');
         });
     }
@@ -112,6 +158,67 @@ function setupAddButtons() {
     if (cancelSubjectBtn) {
         cancelSubjectBtn.addEventListener('click', () => {
             hideModal('add-subject-modal');
+        });
+    }
+    
+    // Configurar botones de guardar
+    const saveTaskBtn = document.getElementById('save-task');
+    if (saveTaskBtn) {
+        saveTaskBtn.addEventListener('click', () => {
+            const task = {
+                title: document.getElementById('task-title').value,
+                description: document.getElementById('task-description').value,
+                dueDate: document.getElementById('task-due-date').value,
+                subject: document.getElementById('task-subject').value,
+                important: document.getElementById('task-important').checked,
+                completed: false
+            };
+            
+            addTask(task);
+            hideModal('task-modal');
+            document.getElementById('add-task-form').reset();
+        });
+    }
+    
+    const saveExamBtn = document.getElementById('save-exam');
+    if (saveExamBtn) {
+        saveExamBtn.addEventListener('click', () => {
+            const exam = {
+                title: document.getElementById('exam-title').value,
+                date: document.getElementById('exam-date').value,
+                subject: document.getElementById('exam-subject-select').value
+            };
+            
+            addExam(exam);
+            hideModal('add-exam-modal');
+        });
+    }
+    
+    const saveSubjectBtn = document.getElementById('save-subject');
+    if (saveSubjectBtn) {
+        saveSubjectBtn.addEventListener('click', () => {
+            const subjectNameElement = document.getElementById('subject-name');
+            const subjectTeacherElement = document.getElementById('subject-teacher');
+            const subjectClassroomElement = document.getElementById('subject-classroom');
+            const subjectScheduleElement = document.getElementById('subject-schedule');
+            
+            // Verificar que todos los elementos existen antes de acceder a sus propiedades
+            if (!subjectNameElement || !subjectTeacherElement) {
+                console.error('No se encontraron los elementos del formulario de materia');
+                return;
+            }
+            
+            const subject = {
+                name: subjectNameElement.value,
+                professor: subjectTeacherElement.value,
+                classroom: subjectClassroomElement ? subjectClassroomElement.value : '',
+                schedule: subjectScheduleElement ? subjectScheduleElement.value : ''
+            };
+            
+            addSubject(subject);
+            hideModal('add-subject-modal');
+            const formElement = document.getElementById('add-subject-form');
+            if (formElement) formElement.reset();
         });
     }
 }
@@ -255,15 +362,14 @@ function setupAuthForms() {
     const registerTab = document.getElementById('register-tab');
     const loginPanel = document.getElementById('login-panel');
     const registerPanel = document.getElementById('register-panel');
-    const closeLoginModal = document.getElementById('close-login-modal');
+    const cancelLoginBtn = document.getElementById('cancel-login');
+    const cancelRegisterBtn = document.getElementById('cancel-register');
     
     // Cambiar entre paneles de login y registro
     if (loginTab) {
         loginTab.addEventListener('click', () => {
-            loginTab.classList.add('border-b-2', 'border-indigo-500');
-            loginTab.classList.remove('text-gray-500');
-            registerTab.classList.remove('border-b-2', 'border-indigo-500');
-            registerTab.classList.add('text-gray-500');
+            loginTab.classList.add('bg-white/20', 'font-semibold');
+            registerTab.classList.remove('bg-white/20', 'font-semibold');
             loginPanel.classList.remove('hidden');
             registerPanel.classList.add('hidden');
         });
@@ -271,18 +377,24 @@ function setupAuthForms() {
     
     if (registerTab) {
         registerTab.addEventListener('click', () => {
-            registerTab.classList.add('border-b-2', 'border-indigo-500');
-            registerTab.classList.remove('text-gray-500');
-            loginTab.classList.remove('border-b-2', 'border-indigo-500');
-            loginTab.classList.add('text-gray-500');
+            registerTab.classList.add('bg-white/20', 'font-semibold');
+            loginTab.classList.remove('bg-white/20', 'font-semibold');
             registerPanel.classList.remove('hidden');
             loginPanel.classList.add('hidden');
         });
     }
     
-    // Cerrar modal de login
-    if (closeLoginModal) {
-        closeLoginModal.addEventListener('click', () => {
+    // Configurar botones de cancelar
+    if (cancelLoginBtn) {
+        cancelLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideModal('login-modal');
+        });
+    }
+    
+    if (cancelRegisterBtn) {
+        cancelRegisterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             hideModal('login-modal');
         });
     }
@@ -294,19 +406,46 @@ function setupAuthForms() {
             
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            const loginError = document.getElementById('login-error');
             
             if (email && password) {
-                const result = await loginUser(email, password);
-                
-                if (result.success) {
-                    hideModal('login-modal');
-                    // Recargar datos del usuario
-                    loadInitialData();
-                } else {
-                    alert(result.error || 'Error al iniciar sesión');
+                try {
+                    const result = await loginUser(email, password);
+                    
+                    if (result.success) {
+                        hideModal('login-modal');
+                        // Recargar datos del usuario
+                        loadInitialData();
+                        showNotification('Has iniciado sesión correctamente', 'success');
+                    } else {
+                        if (loginError) {
+                            loginError.textContent = result.error || 'Error al iniciar sesión';
+                            loginError.classList.remove('hidden');
+                            loginError.classList.add('login-error-message');
+                            // Quitar la clase de animación después de que termine
+                            setTimeout(() => {
+                                loginError.classList.remove('login-error-message');
+                            }, 500);
+                        } else {
+                            alert(result.error || 'Error al iniciar sesión');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al iniciar sesión:', error);
+                    if (loginError) {
+                        loginError.textContent = 'Error al procesar la solicitud';
+                        loginError.classList.remove('hidden');
+                    } else {
+                        alert('Error al procesar la solicitud');
+                    }
                 }
             } else {
-                alert('Por favor completa todos los campos');
+                if (loginError) {
+                    loginError.textContent = 'Por favor completa todos los campos';
+                    loginError.classList.remove('hidden');
+                } else {
+                    alert('Por favor completa todos los campos');
+                }
             }
         });
     }
@@ -320,25 +459,220 @@ function setupAuthForms() {
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
             const confirmPassword = document.getElementById('register-confirm-password').value;
+            const registerError = document.getElementById('register-error');
             
             if (name && email && password && confirmPassword) {
                 if (password !== confirmPassword) {
-                    alert('Las contraseñas no coinciden');
+                    if (registerError) {
+                        registerError.textContent = 'Las contraseñas no coinciden';
+                        registerError.classList.remove('hidden');
+                        registerError.classList.add('login-error-message');
+                        // Quitar la clase de animación después de que termine
+                        setTimeout(() => {
+                            registerError.classList.remove('login-error-message');
+                        }, 500);
+                    } else {
+                        alert('Las contraseñas no coinciden');
+                    }
                     return;
                 }
                 
-                const result = await registerUser(email, password);
-                
-                if (result.success) {
-                    hideModal('login-modal');
-                    // Recargar datos del usuario
-                    loadInitialData();
-                } else {
-                    alert(result.error || 'Error al registrar usuario');
+                try {
+                    const result = await registerUser(email, password);
+                    
+                    if (result.success) {
+                        hideModal('login-modal');
+                        // Recargar datos del usuario
+                        loadInitialData();
+                        showNotification('Cuenta creada correctamente', 'success');
+                    } else {
+                        if (registerError) {
+                            registerError.textContent = result.error || 'Error al registrar usuario';
+                            registerError.classList.remove('hidden');
+                        } else {
+                            alert(result.error || 'Error al registrar usuario');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al registrar usuario:', error);
+                    if (registerError) {
+                        registerError.textContent = 'Error al procesar la solicitud';
+                        registerError.classList.remove('hidden');
+                    } else {
+                        alert('Error al procesar la solicitud');
+                    }
                 }
             } else {
-                alert('Por favor completa todos los campos');
+                if (registerError) {
+                    registerError.textContent = 'Por favor completa todos los campos';
+                    registerError.classList.remove('hidden');
+                } else {
+                    alert('Por favor completa todos los campos');
+                }
             }
         });
     }
 }
+
+// Verificar estado de autenticación
+function checkAuthState() {
+    // Obtener el usuario actual desde la función importada
+    const user = getCurrentUser();
+    console.log('Estado de autenticación:', user ? 'Autenticado' : 'No autenticado');
+    
+    // Actualizar la interfaz según el estado de autenticación
+    updateUIForAuthState(user);
+    
+    // Simular un usuario autenticado para pruebas (quitar en producción)
+    if (!user) {
+        const testUser = { email: 'usuario@ejemplo.com' };
+        console.log('Simulando usuario para pruebas');
+        updateUIForAuthState(testUser);
+    }
+}
+
+// Actualizar la interfaz según el estado de autenticación
+function updateUIForAuthState(user) {
+    const userStatus = document.getElementById('user-status');
+    const userEmail = document.getElementById('user-email');
+    const logoutButton = document.getElementById('logout-button');
+    const userMenuBtn = document.getElementById('user-menu');
+    
+    if (user) {
+        // Usuario autenticado
+        if (userStatus) userStatus.classList.remove('hidden');
+        if (userEmail) userEmail.textContent = user.email || 'Usuario';
+        if (logoutButton) {
+            logoutButton.classList.remove('hidden');
+            console.log('Botón de logout visible:', logoutButton);
+        }
+    } else {
+        // Usuario no autenticado
+        if (userStatus) userStatus.classList.add('hidden');
+        if (logoutButton) {
+            logoutButton.classList.add('hidden');
+            console.log('Botón de logout oculto');
+        }
+    }
+}
+
+// Manejar cierre de sesión
+async function handleLogout() {
+    try {
+        const result = await logoutUser();
+        if (result.success) {
+            // Actualizar la interfaz
+            updateUIForAuthState(null);
+            
+            // Cerrar el menú desplegable
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.remove('show');
+            setTimeout(() => {
+                dropdown.classList.add('hidden');
+            }, 200);
+            
+            // Redirigir a la página de login
+            window.location.href = 'auth.html';
+        } else {
+            console.error("Error al cerrar sesión:", result.error);
+            alert("Error al cerrar sesión: " + result.error);
+        }
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+        alert("Error inesperado al cerrar sesión");
+    }
+}
+
+// Función para mostrar notificaciones
+function showNotification(message, type = 'info') {
+    // Crear elemento de notificación
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 
+        'bg-blue-500'
+    } text-white`;
+    notification.textContent = message;
+    
+    // Añadir al DOM
+    document.body.appendChild(notification);
+    
+    // Eliminar después de 3 segundos
+    setTimeout(() => {
+        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 500);
+    }, 3000);
+}
+
+// Limpiar datos del usuario
+function clearUserData() {
+    // Limpiar listas
+    document.getElementById('tasks-list').innerHTML = '';
+    const upcomingExamsList = document.getElementById('upcoming-exams-list');
+    if (upcomingExamsList) {
+        upcomingExamsList.innerHTML = '<p class="text-gray-500 text-center py-4">No hay exámenes próximos</p>';
+    }
+    
+    // Resetear contadores
+    const pendingTasksCount = document.getElementById('pending-tasks-count');
+    if (pendingTasksCount) pendingTasksCount.textContent = '0';
+    
+    const upcomingExamsCount = document.getElementById('upcoming-exams-count');
+    if (upcomingExamsCount) upcomingExamsCount.textContent = '0';
+    
+    // Resetear contadores en dashboard
+    const dashboardTaskCounter = document.querySelector('#dashboard p.text-3xl');
+    if (dashboardTaskCounter) dashboardTaskCounter.textContent = '0';
+    
+    const dashboardExamCounter = document.querySelector('#dashboard .grid.grid-cols-2.gap-4.mb-6 > div:nth-child(2) p.text-3xl');
+    if (dashboardExamCounter) dashboardExamCounter.textContent = '0';
+}
+
+// Funcionalidad para el menú de usuario
+document.addEventListener('DOMContentLoaded', function() {
+    const userMenu = document.getElementById('user-menu');
+    const userDropdown = document.getElementById('user-dropdown');
+    const closeMenu = document.getElementById('close-menu');
+    const logoutButton = document.getElementById('logout-button');
+    
+    // Mostrar/ocultar menú de usuario
+    userMenu.addEventListener('click', function() {
+        userDropdown.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Prevenir scroll
+    });
+    
+    // Cerrar menú al hacer clic en el botón de cerrar
+    closeMenu.addEventListener('click', function() {
+        userDropdown.classList.remove('show');
+        document.body.style.overflow = ''; // Restaurar scroll
+    });
+    
+    // Cerrar menú al hacer clic fuera del menú
+    userDropdown.addEventListener('click', function(e) {
+        if (e.target === userDropdown) {
+            userDropdown.classList.remove('show');
+            document.body.style.overflow = ''; // Restaurar scroll
+        }
+    });
+    
+    // Mostrar botón de cerrar sesión si el usuario está autenticado
+    function updateLogoutButton(user) {
+        if (user) {
+            logoutButton.classList.remove('hidden');
+        } else {
+            logoutButton.classList.add('hidden');
+        }
+    }
+    
+    // Asignar evento al botón de cerrar sesión
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+    
+    // Actualizar estado de autenticación al cargar la página
+    document.addEventListener('authStateChanged', function(e) {
+        updateLogoutButton(e.detail.user);
+    });
+});
