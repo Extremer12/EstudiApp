@@ -1,10 +1,9 @@
-// Configuración de Firebase
-// Cambia las importaciones para usar CDN
+// Funcionalidad de Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
-// Tu configuración de Firebase
+// Configuración de Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyBlYJCrZMkdAkTTuZ0OdVKrVyXF3BWSk5g",
     authDomain: "estudiapp-c4fbb.firebaseapp.com",
@@ -17,181 +16,262 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Estado de autenticación
+// Variable para almacenar el usuario actual
 let currentUser = null;
 
-// Observador de estado de autenticación
-onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  // Actualizar UI basado en estado de autenticación
-  const userMenu = document.getElementById('user-menu');
-  if (userMenu) {
-    if (user) {
-      userMenu.innerHTML = `<i class="fas fa-user-check"></i>`;
-      userMenu.setAttribute('title', `Conectado como: ${user.email}`);
-    } else {
-      userMenu.innerHTML = `<i class="fas fa-user"></i>`;
-      userMenu.setAttribute('title', 'Iniciar sesión');
-    }
-  }
+// Actualizar el usuario actual cuando cambia el estado de autenticación
+auth.onAuthStateChanged((user) => {
+    currentUser = user;
 });
 
+// Función para obtener el usuario actual
+export function getCurrentUser() {
+    return currentUser;
+}
+
 // Funciones de autenticación
-export async function registerUser(email, password) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return { success: true, user: userCredential.user };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
+async function registerUser(email, password) {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        return { success: true, user: userCredential.user };
+    } catch (error) {
+        console.error("Error al registrar usuario:", error);
+        let errorMessage = "Error al crear la cuenta";
+        
+        if (error.code === 'auth/email-already-in-use') {
+            errorMessage = "Este correo electrónico ya está en uso";
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = "Correo electrónico inválido";
+        } else if (error.code === 'auth/weak-password') {
+            errorMessage = "La contraseña es demasiado débil";
+        }
+        
+        return { success: false, error: errorMessage };
+    }
 }
 
-export async function loginUser(email, password) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return { success: true, user: userCredential.user };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
+async function loginUser(email, password) {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        return { success: true, user: userCredential.user };
+    } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        let errorMessage = "Error al iniciar sesión";
+        
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            errorMessage = "Correo electrónico o contraseña incorrectos";
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = "Correo electrónico inválido";
+        } else if (error.code === 'auth/user-disabled') {
+            errorMessage = "Esta cuenta ha sido deshabilitada";
+        }
+        
+        return { success: false, error: errorMessage };
+    }
 }
 
-export async function logoutUser() {
-  try {
-    await signOut(auth);
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
+async function logoutUser() {
+    try {
+        await signOut(auth);
+        return { success: true };
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+        return { success: false, error: "Error al cerrar sesión" };
+    }
 }
 
-// Funciones de Firestore para tareas
-export async function saveTasks(task) {
-  if (!currentUser) return { success: false, error: "Usuario no autenticado" };
-  
-  try {
-    const docRef = await addDoc(collection(db, "tasks"), {
-      ...task,
-      userId: currentUser.uid,
-      createdAt: new Date()
-    });
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error("Error al guardar tarea:", error);
-    return { success: false, error: error.message };
-  }
+// Funciones para tareas
+async function getTasks() {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        const tasksQuery = query(collection(db, "tasks"), where("userId", "==", currentUser.uid));
+        const querySnapshot = await getDocs(tasksQuery);
+        
+        const tasks = [];
+        querySnapshot.forEach((doc) => {
+            tasks.push({ id: doc.id, ...doc.data() });
+        });
+        
+        return { success: true, tasks };
+    } catch (error) {
+        console.error("Error al obtener tareas:", error);
+        return { success: false, error: "Error al cargar tareas" };
+    }
 }
 
-export async function getTasks() {
-  if (!currentUser) return { success: false, error: "Usuario no autenticado" };
-  
-  try {
-    const q = query(collection(db, "tasks"), where("userId", "==", currentUser.uid));
-    const querySnapshot = await getDocs(q);
-    const tasks = [];
-    querySnapshot.forEach((doc) => {
-      tasks.push({ id: doc.id, ...doc.data() });
-    });
-    return { success: true, tasks };
-  } catch (error) {
-    console.error("Error al obtener tareas:", error);
-    return { success: false, error: error.message };
-  }
+async function saveTasks(task) {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        // Añadir el ID del usuario a la tarea
+        task.userId = currentUser.uid;
+        
+        const docRef = await addDoc(collection(db, "tasks"), task);
+        return { success: true, id: docRef.id };
+    } catch (error) {
+        console.error("Error al guardar tarea:", error);
+        return { success: false, error: "Error al guardar tarea" };
+    }
 }
 
-export async function updateTask(taskId, taskData) {
-  if (!currentUser) return { success: false, error: "Usuario no autenticado" };
-  
-  try {
-    const taskRef = doc(db, "tasks", taskId);
-    await updateDoc(taskRef, taskData);
-    return { success: true };
-  } catch (error) {
-    console.error("Error al actualizar tarea:", error);
-    return { success: false, error: error.message };
-  }
+async function updateTask(taskId, updates) {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        const taskRef = doc(db, "tasks", taskId);
+        await updateDoc(taskRef, updates);
+        return { success: true };
+    } catch (error) {
+        console.error("Error al actualizar tarea:", error);
+        return { success: false, error: "Error al actualizar tarea" };
+    }
 }
 
-export async function removeTask(taskId) {
-  if (!currentUser) return { success: false, error: "Usuario no autenticado" };
-  
-  try {
-    await deleteDoc(doc(db, "tasks", taskId));
-    return { success: true };
-  } catch (error) {
-    console.error("Error al eliminar tarea:", error);
-    return { success: false, error: error.message };
-  }
+async function removeTask(taskId) {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        await deleteDoc(doc(db, "tasks", taskId));
+        return { success: true };
+    } catch (error) {
+        console.error("Error al eliminar tarea:", error);
+        return { success: false, error: "Error al eliminar tarea" };
+    }
 }
 
 // Funciones para materias
-export async function saveSubject(subject) {
-  if (!currentUser) return { success: false, error: "Usuario no autenticado" };
-  
-  try {
-    const docRef = await addDoc(collection(db, "subjects"), {
-      ...subject,
-      userId: currentUser.uid,
-      createdAt: new Date()
-    });
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error("Error al guardar materia:", error);
-    return { success: false, error: error.message };
-  }
+async function getSubjects() {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        const subjectsQuery = query(collection(db, "subjects"), where("userId", "==", currentUser.uid));
+        const querySnapshot = await getDocs(subjectsQuery);
+        
+        const subjects = [];
+        querySnapshot.forEach((doc) => {
+            subjects.push({ id: doc.id, ...doc.data() });
+        });
+        
+        return { success: true, subjects };
+    } catch (error) {
+        console.error("Error al obtener materias:", error);
+        return { success: false, error: "Error al cargar materias" };
+    }
 }
 
-export async function getSubjects() {
-  if (!currentUser) return { success: false, error: "Usuario no autenticado" };
-  
-  try {
-    const q = query(collection(db, "subjects"), where("userId", "==", currentUser.uid));
-    const querySnapshot = await getDocs(q);
-    const subjects = [];
-    querySnapshot.forEach((doc) => {
-      subjects.push({ id: doc.id, ...doc.data() });
-    });
-    return { success: true, subjects };
-  } catch (error) {
-    console.error("Error al obtener materias:", error);
-    return { success: false, error: error.message };
-  }
+async function saveSubject(subject) {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        // Añadir el ID del usuario a la materia
+        subject.userId = currentUser.uid;
+        
+        const docRef = await addDoc(collection(db, "subjects"), subject);
+        return { success: true, id: docRef.id };
+    } catch (error) {
+        console.error("Error al guardar materia:", error);
+        return { success: false, error: "Error al guardar materia" };
+    }
+}
+
+async function deleteSubject(subjectId) {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        await deleteDoc(doc(db, "subjects", subjectId));
+        return { success: true };
+    } catch (error) {
+        console.error("Error al eliminar materia:", error);
+        return { success: false, error: "Error al eliminar materia" };
+    }
 }
 
 // Funciones para exámenes
-export async function saveExam(exam) {
-  if (!currentUser) return { success: false, error: "Usuario no autenticado" };
-  
-  try {
-    const docRef = await addDoc(collection(db, "exams"), {
-      ...exam,
-      userId: currentUser.uid,
-      createdAt: new Date()
-    });
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error("Error al guardar examen:", error);
-    return { success: false, error: error.message };
-  }
+async function getExams() {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        const examsQuery = query(collection(db, "exams"), where("userId", "==", currentUser.uid));
+        const querySnapshot = await getDocs(examsQuery);
+        
+        const exams = [];
+        querySnapshot.forEach((doc) => {
+            exams.push({ id: doc.id, ...doc.data() });
+        });
+        
+        return { success: true, exams };
+    } catch (error) {
+        console.error("Error al obtener exámenes:", error);
+        return { success: false, error: "Error al cargar exámenes" };
+    }
 }
 
-export async function getExams() {
-  if (!currentUser) return { success: false, error: "Usuario no autenticado" };
-  
-  try {
-    const q = query(collection(db, "exams"), where("userId", "==", currentUser.uid));
-    const querySnapshot = await getDocs(q);
-    const exams = [];
-    querySnapshot.forEach((doc) => {
-      exams.push({ id: doc.id, ...doc.data() });
-    });
-    return { success: true, exams };
-  } catch (error) {
-    console.error("Error al obtener exámenes:", error);
-    return { success: false, error: error.message };
-  }
+async function saveExam(exam) {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        // Añadir el ID del usuario al examen
+        exam.userId = currentUser.uid;
+        
+        const docRef = await addDoc(collection(db, "exams"), exam);
+        return { success: true, id: docRef.id };
+    } catch (error) {
+        console.error("Error al guardar examen:", error);
+        return { success: false, error: "Error al guardar examen" };
+    }
 }
 
-export { db, auth, currentUser };
+async function deleteExam(examId) {
+    try {
+        if (!currentUser) {
+            return { success: false, error: "Usuario no autenticado" };
+        }
+        
+        await deleteDoc(doc(db, "exams", examId));
+        return { success: true };
+    } catch (error) {
+        console.error("Error al eliminar examen:", error);
+        return { success: false, error: "Error al eliminar examen" };
+    }
+}
+
+// Exportar funciones y variables
+export {
+    auth,
+    currentUser,
+    registerUser,
+    loginUser,
+    logoutUser,
+    getTasks,
+    saveTasks,
+    updateTask,
+    removeTask,
+    getSubjects,
+    saveSubject,
+    deleteSubject,
+    getExams,
+    saveExam,
+    deleteExam
+};

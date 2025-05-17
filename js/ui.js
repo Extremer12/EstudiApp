@@ -59,12 +59,25 @@ export function hideModal(modalId) {
 // Cambiar tema claro/oscuro
 export function toggleTheme() {
     document.body.classList.toggle('dark-mode');
-    config.darkMode = !config.darkMode;
+    
+    // Verificar si config está definido antes de usarlo
+    if (typeof config !== 'undefined') {
+        config.darkMode = !config.darkMode;
+    }
     
     // Cambiar el icono del botón
     const themeIcon = document.querySelector('#theme-toggle i');
     if (themeIcon) {
         themeIcon.classList.toggle('fa-moon');
         themeIcon.classList.toggle('fa-sun');
+    }
+    
+    // Aplicar estilos de modo oscuro
+    if (document.body.classList.contains('dark-mode')) {
+        document.body.style.backgroundColor = '#1a1a1a';
+        document.body.style.color = '#f1f1f1';
+    } else {
+        document.body.style.backgroundColor = '';
+        document.body.style.color = '';
     }
 }
