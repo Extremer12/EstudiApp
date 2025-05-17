@@ -38,6 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
+        
+        // Verificar si hay una preferencia guardada
+        if (typeof config !== 'undefined' && config.darkMode) {
+            // Aplicar modo oscuro si estaba activado
+            toggleTheme();
+        }
     }
     
     // Configurar botón de usuario
@@ -240,3 +246,99 @@ document.addEventListener('submit', (e) => {
         form.reset();
     }
 });
+
+// Configurar formularios de autenticación
+function setupAuthForms() {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const loginPanel = document.getElementById('login-panel');
+    const registerPanel = document.getElementById('register-panel');
+    const closeLoginModal = document.getElementById('close-login-modal');
+    
+    // Cambiar entre paneles de login y registro
+    if (loginTab) {
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('border-b-2', 'border-indigo-500');
+            loginTab.classList.remove('text-gray-500');
+            registerTab.classList.remove('border-b-2', 'border-indigo-500');
+            registerTab.classList.add('text-gray-500');
+            loginPanel.classList.remove('hidden');
+            registerPanel.classList.add('hidden');
+        });
+    }
+    
+    if (registerTab) {
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('border-b-2', 'border-indigo-500');
+            registerTab.classList.remove('text-gray-500');
+            loginTab.classList.remove('border-b-2', 'border-indigo-500');
+            loginTab.classList.add('text-gray-500');
+            registerPanel.classList.remove('hidden');
+            loginPanel.classList.add('hidden');
+        });
+    }
+    
+    // Cerrar modal de login
+    if (closeLoginModal) {
+        closeLoginModal.addEventListener('click', () => {
+            hideModal('login-modal');
+        });
+    }
+    
+    // Manejar envío de formulario de login
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (email && password) {
+                const result = await loginUser(email, password);
+                
+                if (result.success) {
+                    hideModal('login-modal');
+                    // Recargar datos del usuario
+                    loadInitialData();
+                } else {
+                    alert(result.error || 'Error al iniciar sesión');
+                }
+            } else {
+                alert('Por favor completa todos los campos');
+            }
+        });
+    }
+    
+    // Manejar envío de formulario de registro
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            if (name && email && password && confirmPassword) {
+                if (password !== confirmPassword) {
+                    alert('Las contraseñas no coinciden');
+                    return;
+                }
+                
+                const result = await registerUser(email, password);
+                
+                if (result.success) {
+                    hideModal('login-modal');
+                    // Recargar datos del usuario
+                    loadInitialData();
+                } else {
+                    alert(result.error || 'Error al registrar usuario');
+                }
+            } else {
+                alert('Por favor completa todos los campos');
+            }
+        });
+    }
+}

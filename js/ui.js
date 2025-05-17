@@ -76,8 +76,125 @@ export function toggleTheme() {
     if (document.body.classList.contains('dark-mode')) {
         document.body.style.backgroundColor = '#1a1a1a';
         document.body.style.color = '#f1f1f1';
+        
+        // Aplicar estilos a elementos específicos
+        applyDarkModeStyles();
     } else {
         document.body.style.backgroundColor = '';
         document.body.style.color = '';
+        
+        // Restaurar estilos originales
+        removeDarkModeStyles();
+    }
+}
+
+// Función para aplicar estilos de modo oscuro a elementos específicos
+function applyDarkModeStyles() {
+    // Tarjetas y contenedores
+    const whiteElements = document.querySelectorAll('.bg-white');
+    whiteElements.forEach(el => {
+        el.classList.remove('bg-white');
+        el.classList.add('bg-gray-800');
+    });
+    
+    // Textos en gris
+    const grayTextElements = document.querySelectorAll('.text-gray-700, .text-gray-800, .text-gray-600, .text-gray-500');
+    grayTextElements.forEach(el => {
+        if (el.classList.contains('text-gray-700')) {
+            el.classList.remove('text-gray-700');
+            el.classList.add('text-gray-300');
+        }
+        if (el.classList.contains('text-gray-800')) {
+            el.classList.remove('text-gray-800');
+            el.classList.add('text-gray-200');
+        }
+        if (el.classList.contains('text-gray-600')) {
+            el.classList.remove('text-gray-600');
+            el.classList.add('text-gray-400');
+        }
+        if (el.classList.contains('text-gray-500')) {
+            el.classList.remove('text-gray-500');
+            el.classList.add('text-gray-400');
+        }
+    });
+    
+    // Bordes
+    const borderElements = document.querySelectorAll('[class*="border-gray-"]');
+    borderElements.forEach(el => {
+        el.classList.forEach(cls => {
+            if (cls.startsWith('border-gray-')) {
+                el.classList.remove(cls);
+                el.classList.add('border-gray-700');
+            }
+        });
+    });
+    
+    // Inputs y selects
+    const formElements = document.querySelectorAll('input, select, textarea');
+    formElements.forEach(el => {
+        el.classList.add('bg-gray-700', 'text-white', 'border-gray-600');
+    });
+    
+    // Modales
+    const modals = document.querySelectorAll('.modal-transition');
+    modals.forEach(modal => {
+        if (modal.classList.contains('bg-white')) {
+            modal.classList.remove('bg-white');
+            modal.classList.add('bg-gray-800');
+        }
+    });
+    
+    // Menú inferior
+    const bottomNav = document.querySelector('.fixed.bottom-0.left-0.right-0.bg-white');
+    if (bottomNav) {
+        bottomNav.classList.remove('bg-white');
+        bottomNav.classList.add('bg-gray-800');
+    }
+}
+
+// Función para restaurar los estilos originales
+function removeDarkModeStyles() {
+    // Restaurar tarjetas y contenedores
+    const darkElements = document.querySelectorAll('.bg-gray-800');
+    darkElements.forEach(el => {
+        el.classList.remove('bg-gray-800');
+        el.classList.add('bg-white');
+    });
+    
+    // Restaurar textos
+    const lightTextElements = document.querySelectorAll('.text-gray-300, .text-gray-200, .text-gray-400');
+    lightTextElements.forEach(el => {
+        if (el.classList.contains('text-gray-300')) {
+            el.classList.remove('text-gray-300');
+            el.classList.add('text-gray-700');
+        }
+        if (el.classList.contains('text-gray-200')) {
+            el.classList.remove('text-gray-200');
+            el.classList.add('text-gray-800');
+        }
+        if (el.classList.contains('text-gray-400')) {
+            el.classList.remove('text-gray-400');
+            el.classList.add('text-gray-600');
+        }
+    });
+    
+    // Restaurar bordes
+    const borderElements = document.querySelectorAll('.border-gray-700');
+    borderElements.forEach(el => {
+        el.classList.remove('border-gray-700');
+        el.classList.add('border-gray-200');
+    });
+    
+    // Restaurar inputs y selects
+    const formElements = document.querySelectorAll('input, select, textarea');
+    formElements.forEach(el => {
+        el.classList.remove('bg-gray-700', 'text-white', 'border-gray-600');
+    });
+    
+    // Restaurar menú inferior
+    const bottomNav = document.querySelector('.fixed.bottom-0.left-0.right-0.bg-gray-800');
+    if (bottomNav) {
+        bottomNav.classList.remove('bg-gray-800');
+        bottomNav.classList.add('bg-white');
     }
 }

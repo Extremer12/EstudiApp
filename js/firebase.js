@@ -35,6 +35,22 @@ export function getCurrentUser() {
 // Funciones de autenticación
 async function registerUser(email, password) {
     try {
+        // Verificar si estamos en desarrollo local
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        if (isLocalhost) {
+            console.log("Modo de desarrollo local: simulando registro de usuario");
+            // Simular un registro exitoso en desarrollo local
+            return { 
+                success: true, 
+                user: { 
+                    uid: 'local-user-' + Date.now(),
+                    email: email,
+                    displayName: email.split('@')[0]
+                } 
+            };
+        }
+        
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         return { success: true, user: userCredential.user };
     } catch (error) {
@@ -55,6 +71,20 @@ async function registerUser(email, password) {
 
 async function loginUser(email, password) {
     try {
+        // Verificar si estamos en desarrollo local
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        if (isLocalhost) {
+            console.log("Modo de desarrollo local: simulando inicio de sesión");
+            // Simular un inicio de sesión exitoso en desarrollo local
+            currentUser = { 
+                uid: 'local-user-' + Date.now(),
+                email: email,
+                displayName: email.split('@')[0]
+            };
+            return { success: true, user: currentUser };
+        }
+        
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         return { success: true, user: userCredential.user };
     } catch (error) {

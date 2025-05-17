@@ -532,50 +532,68 @@
                 </div>
             </div>
 
-            <!-- Modal de Login -->
+            <!-- Modal de Login/Registro -->
             <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-                <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform scale-95 transition-all modal-transition">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4">Iniciar Sesión</h3>
-                        
-                        <div class="mb-4">
-                            <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-                            <input type="email" id="login-email" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="correo@ejemplo.com">
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                            <input type="password" id="login-password" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Tu contraseña">
-                        </div>
-                        
-                        <div class="flex justify-end space-x-2">
-                            <button id="go-to-register" class="px-4 py-2 text-indigo-600 hover:underline">Crear cuenta</button>
-                            <button id="submit-login" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Ingresar</button>
-                        </div>
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 modal-transition">
+                    <div class="flex border-b border-gray-200">
+                        <button id="login-tab" class="flex-1 py-3 font-medium text-center border-b-2 border-indigo-500">Iniciar Sesión</button>
+                        <button id="register-tab" class="flex-1 py-3 font-medium text-center text-gray-500">Registrarse</button>
                     </div>
-                </div>
-            </div>
-
-            <!-- Modal de Registro -->
-            <div id="register-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-                <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform scale-95 transition-all modal-transition">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4">Crear Cuenta</h3>
-                        
-                        <div class="mb-4">
-                            <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-                            <input type="email" id="register-email" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="correo@ejemplo.com">
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                            <input type="password" id="register-password" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Contraseña (mínimo 6 caracteres)">
-                        </div>
-                        
-                        <div class="flex justify-end space-x-2">
-                            <button id="go-to-login" class="px-4 py-2 text-indigo-600 hover:underline">Ya tengo cuenta</button>
-                            <button id="submit-register" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Registrarme</button>
-                        </div>
+                    
+                    <!-- Panel de Login -->
+                    <div id="login-panel" class="p-6">
+                        <form id="login-form">
+                            <div class="mb-4">
+                                <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                                <input type="email" id="login-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                                <input type="password" id="login-password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            
+                            <div class="flex justify-between items-center mb-6">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="remember-me" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="remember-me" class="ml-2 block text-sm text-gray-700">Recordarme</label>
+                                </div>
+                                <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">¿Olvidaste tu contraseña?</a>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Iniciar Sesión</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Panel de Registro -->
+                    <div id="register-panel" class="p-6 hidden">
+                        <form id="register-form">
+                            <div class="mb-4">
+                                <label for="register-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                                <input type="text" id="register-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                                <input type="email" id="register-email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                                <input type="password" id="register-password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label for="register-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+                                <input type="password" id="register-confirm-password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Crear Cuenta</button>
+                        </form>
+                    </div>
+                    
+                    <div class="p-4 border-t border-gray-200 text-center">
+                        <button id="close-login-modal" class="text-gray-500 hover:text-gray-700">Cerrar</button>
                     </div>
                 </div>
             </div>
