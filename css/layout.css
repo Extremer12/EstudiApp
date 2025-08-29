@@ -1,0 +1,76 @@
+/* ========================================
+   LAYOUT PRINCIPAL
+======================================== */
+.app-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(1rem, 2vw, 2rem);
+  min-height: 100vh;
+}
+
+/* ========================================
+   HEADER PROFESIONAL
+======================================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-lg) 0;
+  border-bottom: 2px solid var(--border-light);
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+  border-radius: var(--radius-full);
+}
+
+.header h1 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.025em;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.points-display {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: var(--text-lg);
+}
+
+.btn-icon:hover {
+  background: var(--primary-500);
+  transform: scale(1.05);
+}

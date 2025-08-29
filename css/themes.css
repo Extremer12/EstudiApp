@@ -1,0 +1,48 @@
+/* ========================================
+   MODO OSCURO - VARIABLES
+======================================== */
+[data-theme="dark"] {
+  /* Colores Base - Modo Oscuro */
+  --primary-50: #1a1f3a;
+  --primary-100: #2a3154;
+  --primary-400: #7b9aff;
+  --primary-500: #6b8aff;
+  --primary-600: #5a7aef;
+  --primary-700: #496adf;
+  --primary-800: #385acf;
+  --primary-900: #274abf;
+  
+  /* Variables RGB para transparencias - Modo Oscuro */
+  --primary-500-rgb: 107, 138, 255;
+  --primary-600-rgb: 90, 122, 239;
+  --primary-700-rgb: 73, 106, 223;
+  
+  /* Colores de Superficie */
+  --surface-bg: #0f1419;
+  --surface-card: #1a1f2e;
+  --surface-elevated: #242938;
+  --surface-overlay: rgba(26, 31, 46, 0.95);
+  
+  /* Colores de Texto */
+  --text-primary: #f7fafc;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #a0aec0;
+  --text-inverse: #1a202c;
+  
+  /* Colores de Borde */
+  --border-light: #2d3748;
+  --border-medium: #4a5568;
+  --border-strong: #718096;
+  
+  /* Sombras Oscuras */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  
+  /* Sombras 3D Oscuras */
+  --btn-shadow-3d: 0 4px 8px rgba(107, 138, 255, 0.3), 0 2px 4px rgba(107, 138, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --btn-shadow-3d-hover: 0 6px 12px rgba(107, 138, 255, 0.4), 0 3px 6px rgba(107, 138, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --btn-shadow-3d-active: 0 2px 4px rgba(107, 138, 255, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}

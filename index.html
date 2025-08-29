@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="EstudiApp - Tu organizador universitario">
+  <title>EstudiApp</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192x192.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- CSS Modular - Orden de importación optimizado -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/themes.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/modules.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🔔 EstudiApp</h1>
+      <div class="header-right">
+        <button id="darkModeToggle" class="btn-icon">🌙</button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="main">
+      <!-- Sistema de Rachas -->
+      <section class="card streak-section">
+        <div class="card-header">
+          <h2>🔥 Sistema de Rachas</h2>
+          <button onclick="openModal('goalModal')" class="btn-small">⚙️</button>
+        </div>
+        <div class="streak-content">
+          <div class="streak-stats">
+            <div class="streak-item">
+              <span class="streak-number" id="currentStreak">0</span>
+              <span class="streak-label">Días consecutivos</span>
+            </div>
+            <div class="streak-item">
+              <span class="streak-number" id="bestStreak">0</span>
+              <span class="streak-label">Mejor racha</span>
+            </div>
+          </div>
+          <div class="daily-goal">
+            <div class="goal-progress">
+              <span>Objetivo diario: <span id="dailyGoalTime">60</span> min</span>
+              <div class="progress-bar">
+                <div id="dailyProgressFill" class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <span id="todayStudyTime">0</span> / <span id="goalTime">60</span> min
+            </div>
+          </div>
+          <div class="streak-actions">
+            <button onclick="shareStreak()" class="btn-share">📤 Compartir Logro</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Upcoming Events -->
+      <section class="card upcoming-section">
+        <h2>Próximos Eventos</h2>
+        <div id="upcomingEvents"></div>
+      </section>
+
+      <!-- Subjects Section Mejorada -->
+      <section class="card subjects-section">
+        <div class="card-header">
+          <h2>Mis Materias</h2>
+          <button onclick="openModal('subjectModal')" class="btn-small">+</button>
+        </div>
+        <div id="subjectsList" class="subjects-expandable-list"></div>
+      </section>
+
+      <!-- Calendar -->
+      <section class="card calendar-section">
+        <div class="card-header">
+          <h2>Calendario</h2>
+          <!-- Botón eliminado -->
+        </div>
+        <div id="calendar"></div>
+      </section>
+
+      <!-- Pomodoro Timer -->
+      <section class="card pomodoro-section">
+        <div class="card-header">
+          <h2>🍅 Pomodoro</h2>
+          <button onclick="openModal('pomodoroConfigModal')" class="btn-small">⚙️</button>
+        </div>
+        <div class="pomodoro-timer">
+          <div class="session-info">
+            <h3 id="sessionTitle" class="session-title">Tiempo de estudio</h3>
+            <div id="sessionProgress" class="session-progress">
+              <div class="progress-bar">
+                <div id="sessionProgressFill" class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <span id="sessionProgressText">Segmento 1 de 3</span>
+            </div>
+          </div>
+          
+          <div class="timer-display" id="timerDisplay">25:00</div>
+          
+          <div class="timer-controls">
+            <button id="startTimer" class="btn-timer">▶️</button>
+            <button id="pauseTimer" class="btn-timer hidden">⏸️</button>
+            <button id="resetTimer" class="btn-timer">🔄</button>
+          </div>
+          
+          <div class="timer-info">
+            <p class="timer-description" id="timerDescription">Sesión de estudio enfocado</p>
+            <p id="pomodoroStatus" class="timer-status">Listo para comenzar</p>
+            <div class="session-schedule" id="sessionSchedule"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Todos los Eventos -->
+      <section class="card events-list-section">
+        <div class="card-header">
+          <h2>📅 Todos los Eventos</h2>
+          <div class="events-filters">
+            <select id="eventFilter" onchange="renderAllEvents()">
+              <option value="all">Todos</option>
+              <option value="pending">Pendientes</option>
+              <option value="completed">Completados</option>
+              <option value="upcoming">Próximos 7 días</option>
+            </select>
+          </div>
+        </div>
+        <div id="allEventsList" class="events-list"></div>
+      </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="subjectModal" class="modal">
+      <div class="modal-content">
+        <h3>Agregar Materia</h3>
+        <input type="text" id="subjectName" placeholder="Nombre de la materia" required>
+        <input type="text" id="subjectProfessor" placeholder="Profesor">
+        <input type="text" id="subjectSchedule" placeholder="Horario (ej: Lunes 8-10)">
+        <input type="color" id="subjectColor" value="#4CAF50">
+        <div class="modal-actions">
+          <button onclick="closeModal('subjectModal')" class="btn-cancel">Cancelar</button>
+          <button onclick="addSubject()" class="btn-confirm">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="reminderModal" class="modal">
+      <div class="modal-content">
+        <h3>Agregar Recordatorio</h3>
+        <input type="text" id="reminderTitle" placeholder="Título" required>
+        <select id="reminderSubject"></select>
+        <div class="datetime-container">
+          <label for="reminderTime">Hora del evento:</label>
+          <input type="time" id="reminderTime" required>
+          <input type="hidden" id="reminderDate">
+        </div>
+        <textarea id="reminderDescription" placeholder="Descripción (opcional)" rows="3"></textarea>
+        <div class="modal-actions">
+          <button onclick="closeModal('reminderModal')" class="btn-cancel">Cancelar</button>
+          <button onclick="addReminder()" class="btn-confirm">Agregar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para detalles de materia -->
+    <div id="subjectDetailsModal" class="modal">
+      <div class="modal-content subject-modal-content">
+        <div class="subject-modal-header">
+          <h3 id="subjectModalTitle">Detalles de Materia</h3>
+          <button onclick="closeModal('subjectDetailsModal')" class="modal-close-btn">✕</button>
+        </div>
+        
+        <div class="subject-modal-body">
+          <!-- Próximos Exámenes -->
+          <div class="subject-section">
+            <h4>📝 Próximos Exámenes</h4>
+            <div class="exams-list" id="modal-exams-list"></div>
+            <button id="modal-add-exam-btn" class="btn-small-text">+ Agregar Examen</button>
+          </div>
+          
+          <!-- Horarios de Consulta -->
+          <div class="subject-section">
+            <h4>🕐 Horarios de Consulta</h4>
+            <div class="consultation-hours" id="modal-consultation-hours"></div>
+            <button id="modal-add-consultation-btn" class="btn-small-text">+ Agregar Horario</button>
+          </div>
+          
+          <!-- Notas Personalizadas -->
+          <div class="subject-section">
+            <h4>📋 Notas Personalizadas</h4>
+            <textarea 
+              id="modal-subject-notes" 
+              placeholder="Escribe tus notas sobre esta materia..."
+              rows="4"
+            ></textarea>
+            <button id="modal-save-notes-btn" class="btn-small-text">💾 Guardar Notas</button>
+          </div>
+          
+          <!-- Materiales de Estudio -->
+          <div class="subject-section">
+            <h4>📚 Materiales de Estudio</h4>
+            <div class="materials-list" id="modal-materials-list"></div>
+            <button id="modal-add-material-btn" class="btn-small-text">+ Agregar Material</button>
+          </div>
+          
+          <!-- Progreso -->
+          <div class="subject-section">
+            <h4>📊 Progreso</h4>
+            <div class="progress-info" id="modal-progress-info"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Al final del body, antes del cierre -->
+  <script src="core.js"></script>
+  <script src="subjects.js"></script>
+  <script src="pomodoro.js"></script>
+  <script src="reminders.js"></script>
+  <script src="streaks.js"></script>
+  <script src="calendar.js"></script>
+  <script>
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+      // Cargar datos
+      state = loadData();
+      
+      // Migrar materias al formato expandido
+      migrateSubjectsToExpandedFormat();
+      
+      // Inicializar sistemas
+      if (typeof initializeStreaks === 'function') {
+        initializeStreaks();
+      }
+      if (typeof initializeCalendar === 'function') {
+        initializeCalendar();
+      }
+      if (typeof loadPomodoroConfig === 'function') {
+        loadPomodoroConfig();
+      }
+      
+      // Configurar event listeners del temporizador Pomodoro
+      if (typeof setupPomodoroEventListeners === 'function') {
+        setupPomodoroEventListeners();
+      }
+      
+      // Renderizar todo
+      renderAll();
+      
+      // Configurar modo oscuro
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+      }
+      
+      // Cargar configuración del tema guardada
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateDarkModeToggle();
+      }
+      
+      // Inicializar vista previa de sesión avanzada
+      if (typeof updateSessionPreview === 'function') {
+        updateSessionPreview();
+      }
+    });
+    
+    function toggleDarkMode() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateDarkModeToggle();
+    }
+    
+    function updateDarkModeToggle() {
+      const toggle = document.getElementById('darkModeToggle');
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      
+      if (toggle) {
+        toggle.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Modal para configurar objetivos -->
+<div id="goalModal" class="modal">
+  <div class="modal-content">
+    <h3>Configurar Objetivo Diario</h3>
+    <label for="goalMinutes">Tiempo de estudio diario (minutos):</label>
+    <input type="number" id="goalMinutes" min="15" max="480" value="60" step="15">
+    <div class="goal-suggestions">
+      <button onclick="setQuickGoal(30)" class="btn-suggestion">30 min</button>
+      <button onclick="setQuickGoal(60)" class="btn-suggestion">1 hora</button>
+      <button onclick="setQuickGoal(90)" class="btn-suggestion">1.5 horas</button>
+      <button onclick="setQuickGoal(120)" class="btn-suggestion">2 horas</button>
+    </div>
+    <div class="modal-actions">
+      <button onclick="closeModal('goalModal')" class="btn-cancel">Cancelar</button>
+      <button onclick="saveGoal()" class="btn-confirm">Guardar</button>
+    </div>
+  </div>
+</div>
+
+        <!-- Modal para configurar Pomodoro Avanzado -->
+        <div id="pomodoroConfigModal" class="modal">
+          <div class="modal-content">
+            <h3>⚙️ Configurar Sesión de Estudio</h3>
+            
+            <div class="pomodoro-config">
+              <div class="config-tabs">
+                <button class="tab-btn active" onclick="switchTab('simple')">Simple</button>
+                <button class="tab-btn" onclick="switchTab('advanced')">Avanzado</button>
+              </div>
+            </div>
+            
+            <!-- Configuración Simple -->
+            <div id="simpleConfig" class="config-tab active">
+              <div class="config-section">
+                <label for="workDuration">Tiempo de trabajo (minutos):</label>
+                <input type="number" id="workDuration" min="5" max="90" value="25" step="5">
+                <div class="time-suggestions">
+                  <button onclick="setWorkTime(15)" class="btn-suggestion">15 min</button>
+                  <button onclick="setWorkTime(25)" class="btn-suggestion">25 min</button>
+                  <button onclick="setWorkTime(45)" class="btn-suggestion">45 min</button>
+                  <button onclick="setWorkTime(60)" class="btn-suggestion">60 min</button>
+                </div>
+              </div>
+              
+              <div class="config-section">
+                <label for="breakDuration">Tiempo de descanso (minutos):</label>
+                <input type="number" id="breakDuration" min="1" max="30" value="5" step="1">
+                <div class="time-suggestions">
+                  <button onclick="setBreakTime(5)" class="btn-suggestion">5 min</button>
+                  <button onclick="setBreakTime(10)" class="btn-suggestion">10 min</button>
+                  <button onclick="setBreakTime(15)" class="btn-suggestion">15 min</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Configuración Avanzada -->
+            <div id="advancedConfig" class="config-tab">
+              <div class="config-section">
+                <label for="totalTime">Tiempo total de estudio (minutos):</label>
+                <input type="number" id="totalTime" min="30" max="180" value="60" step="15">
+                <div class="time-suggestions">
+                  <button onclick="setTotalTime(60)" class="btn-suggestion">1 hora</button>
+                  <button onclick="setTotalTime(90)" class="btn-suggestion">1.5 horas</button>
+                  <button onclick="setTotalTime(120)" class="btn-suggestion">2 horas</button>
+                  <button onclick="setTotalTime(150)" class="btn-suggestion">2.5 horas</button>
+                </div>
+              </div>
+              
+              <div class="config-section">
+                <label for="breakLength">Duración de cada pausa (minutos):</label>
+                <input type="number" id="breakLength" min="5" max="20" value="15" step="5">
+                <div class="time-suggestions">
+                  <button onclick="setBreakLength(10)" class="btn-suggestion">10 min</button>
+                  <button onclick="setBreakLength(15)" class="btn-suggestion">15 min</button>
+                  <button onclick="setBreakLength(20)" class="btn-suggestion">20 min</button>
+                </div>
+              </div>
+              
+              <div class="config-section">
+                <label for="numberOfBreaks">Número de pausas:</label>
+                <select id="numberOfBreaks">
+                  <option value="1">1 pausa</option>
+                  <option value="2" selected>2 pausas</option>
+                  <option value="3">3 pausas</option>
+                  <option value="4">4 pausas</option>
+                </select>
+              </div>
+              
+              <div class="config-preview">
+                <h4>Vista previa de la sesión:</h4>
+                <div id="sessionPreview" class="session-preview"></div>
+              </div>
+            </div>
+            
+            <div class="config-section">
+              <label for="autoTransition">Transiciones automáticas:</label>
+              <div class="checkbox-group">
+                <label>
+                  <input type="checkbox" id="autoStartBreak" checked> Iniciar pausas automáticamente
+                </label>
+                <label>
+                  <input type="checkbox" id="autoStartWork" checked> Continuar estudio automáticamente
+                </label>
+              </div>
+            </div>
+            
+            <div class="modal-actions">
+              <button onclick="closeModal('pomodoroConfigModal')" class="btn-cancel">Cancelar</button>
+              <button onclick="savePomodoroConfig()" class="btn-confirm">Guardar</button>
+            </div>
+          </div>
+        </div>
