@@ -270,17 +270,33 @@ function renderAllEvents() {
     });
   });
   
-  // Agregar exámenes
+  // Agregar eventos sincronizados (exámenes)
+  if (state.events) {
+    state.events.forEach(event => {
+      allEvents.push({
+        ...event,
+        datetime: new Date(`${event.date}T09:00`)
+      });
+    });
+  }
+  
+  // Agregar exámenes directos (para compatibilidad)
   state.subjects.forEach(subject => {
     if (subject.exams) {
       subject.exams.forEach(exam => {
-        allEvents.push({
-          ...exam,
-          type: 'exam',
-          subjectId: subject.id,
-          subjectName: subject.name,
-          datetime: new Date(`${exam.date}T${exam.time || '09:00'}`)
-        });
+        // Solo agregar si no existe ya como evento sincronizado
+        const eventId = `exam_${exam.id}`;
+        const existsInEvents = state.events && state.events.some(e => e.id === eventId);
+        
+        if (!existsInEvents) {
+          allEvents.push({
+            ...exam,
+            type: 'exam',
+            subjectId: subject.id,
+            subjectName: subject.name,
+            datetime: new Date(`${exam.date}T${exam.time || '09:00'}`)
+          });
+        }
       });
     }
   });

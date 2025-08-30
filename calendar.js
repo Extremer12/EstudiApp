@@ -154,11 +154,21 @@ function getEventsForDate(dateStr) {
     events.push(...dateReminders.map(reminder => ({...reminder, type: 'reminder'})));
   }
   
-  // Obtener exámenes del estado global
+  // Obtener eventos sincronizados (incluyendo exámenes)
+  if (state && state.events) {
+    const dateEvents = state.events.filter(event => event.date === dateStr);
+    events.push(...dateEvents);
+  }
+  
+  // Obtener exámenes directamente de subjects (solo si no están ya en events)
   if (state && state.subjects) {
     state.subjects.forEach(subject => {
       if (subject.exams) {
-        const subjectExams = subject.exams.filter(exam => exam.date === dateStr);
+        const subjectExams = subject.exams.filter(exam => {
+          const examEventId = `exam_${exam.id}`;
+          const alreadyInEvents = state.events && state.events.some(e => e.id === examEventId);
+          return exam.date === dateStr && !alreadyInEvents;
+        });
         events.push(...subjectExams.map(exam => ({...exam, subject: subject.name, type: 'exam'})));
       }
     });
@@ -340,6 +350,19 @@ function cleanupCalendar() {
 
 // Limpiar al cerrar la página
 window.addEventListener('beforeunload', cleanupCalendar);
+
+// Funciones para sincronización de eventos
+function addEventToCalendar(event) {
+  // Esta función se llama cuando se agrega un examen desde subjects.js
+  // El evento ya se guarda en state.events, solo necesitamos actualizar la vista
+  updateCalendar();
+}
+
+function removeEventFromCalendar(eventId) {
+  // Esta función se llama cuando se elimina un examen desde subjects.js
+  // El evento ya se elimina de state.events, solo necesitamos actualizar la vista
+  updateCalendar();
+}
 
 
 function addEventToSelectedDay() {

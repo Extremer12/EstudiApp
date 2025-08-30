@@ -151,6 +151,14 @@ function loadSubjectModalContent(subject) {
             <p><strong>Tipo:</strong> ${exam.type}</p>
             <p><strong>Temas:</strong> ${exam.topics}</p>
           </div>
+          <div class="exam-actions">
+            <button class="btn-secondary btn-sm" onclick="editExam('${subject.id}', '${exam.id}')">
+              ✏️ Editar
+            </button>
+            <button class="btn-danger btn-sm" onclick="deleteExam('${subject.id}', '${exam.id}')">
+              🗑️ Eliminar
+            </button>
+          </div>
         </div>
       `).join('');
     } else {
@@ -258,9 +266,16 @@ function setupSubjectModalEventListeners(subjectId) {
   if (addExamBtn) {
     addExamBtn.onclick = () => {
       const examName = prompt('Nombre del examen:');
+      if (examName === null) return; // Usuario canceló
+      
       const examDate = prompt('Fecha del examen (YYYY-MM-DD):');
+      if (examDate === null) return; // Usuario canceló
+      
       const examType = prompt('Tipo de examen (Parcial, Final, Quiz, etc.):');
+      if (examType === null) return; // Usuario canceló
+      
       const examTopics = prompt('Temas del examen:');
+      if (examTopics === null) return; // Usuario canceló
       
       if (examName && examDate && examType) {
         const subjectIndex = state.subjects.findIndex(s => s.id === subjectId);
@@ -269,17 +284,22 @@ function setupSubjectModalEventListeners(subjectId) {
             state.subjects[subjectIndex].exams = [];
           }
           
-          state.subjects[subjectIndex].exams.push({
+          const newExam = {
             id: Date.now().toString(),
             name: examName,
             date: examDate,
             type: examType,
             topics: examTopics || 'No especificado'
-          });
+          };
+          
+          state.subjects[subjectIndex].exams.push(newExam);
           
           saveData();
           renderAll(); // Actualizar todas las secciones
           loadSubjectModalContent(state.subjects[subjectIndex]);
+          
+          // Sincronizar con eventos y calendario
+          syncExamToEvents(state.subjects[subjectIndex], newExam);
         }
       }
     };
@@ -290,8 +310,13 @@ function setupSubjectModalEventListeners(subjectId) {
   if (addConsultationBtn) {
     addConsultationBtn.onclick = () => {
       const day = prompt('Día de la semana:');
+      if (day === null) return; // Usuario canceló
+      
       const time = prompt('Horario (ej: 14:00 - 16:00):');
+      if (time === null) return; // Usuario canceló
+      
       const location = prompt('Ubicación:');
+      if (location === null) return; // Usuario canceló
       
       if (day && time) {
         const subjectIndex = state.subjects.findIndex(s => s.id === subjectId);
@@ -319,8 +344,13 @@ function setupSubjectModalEventListeners(subjectId) {
   if (addMaterialBtn) {
     addMaterialBtn.onclick = () => {
       const materialName = prompt('Nombre del material:');
+      if (materialName === null) return; // Usuario canceló
+      
       const materialType = prompt('Tipo (Libro, PDF, Video, etc.):');
+      if (materialType === null) return; // Usuario canceló
+      
       const materialUrl = prompt('URL (opcional):');
+      if (materialUrl === null) return; // Usuario canceló
       
       if (materialName && materialType) {
         const subjectIndex = state.subjects.findIndex(s => s.id === subjectId);
@@ -365,49 +395,104 @@ function editExam(subjectId, examId) {
   if (!exam) return;
   
   const examName = prompt('Nombre del examen:', exam.name);
+  if (examName === null) return; // Usuario canceló
+  
   const examDate = prompt('Fecha del examen (YYYY-MM-DD):', exam.date);
-  const examTime = prompt('Hora del examen (HH:MM):', exam.time || '09:00');
-  const examType = prompt('Tipo de examen:', exam.type);
+  if (examDate === null) return; // Usuario canceló
+  
+  const examType = prompt('Tipo de examen (Parcial, Final, Quiz, etc.):', exam.type);
+  if (examType === null) return; // Usuario canceló
+  
   const examTopics = prompt('Temas del examen:', exam.topics);
+  if (examTopics === null) return; // Usuario canceló
   
   if (examName && examDate && examType) {
-    const subjectIndex = state.subjects.findIndex(s => s.id === subjectId);
-    const examIndex = subject.exams.findIndex(e => e.id === examId);
+    // Actualizar examen
+    exam.name = examName;
+    exam.date = examDate;
+    exam.type = examType;
+    exam.topics = examTopics || 'No especificado';
     
-    if (subjectIndex !== -1 && examIndex !== -1) {
-      state.subjects[subjectIndex].exams[examIndex] = {
-        ...exam,
-        name: examName,
-        date: examDate,
-        time: examTime,
-        type: examType,
-        topics: examTopics || 'No especificado'
-      };
-      
-      saveData();
-      renderAll(); // Actualizar todas las secciones
-      
-      // Si el modal está abierto, actualizar su contenido
-      if (document.getElementById('subjectModal').style.display !== 'none') {
-        loadSubjectModalContent(state.subjects[subjectIndex]);
-      }
-    }
+    saveData();
+    renderAll();
+    loadSubjectModalContent(subject);
+    
+    // Sincronizar con eventos y calendario
+    syncExamToEvents(subject, exam);
   }
 }
 
 // Función para eliminar examen
 function deleteExam(subjectId, examId) {
-  if (confirm('¿Estás seguro de que quieres eliminar este examen?')) {
-    const subjectIndex = state.subjects.findIndex(s => s.id === subjectId);
-    if (subjectIndex !== -1 && state.subjects[subjectIndex].exams) {
-      state.subjects[subjectIndex].exams = state.subjects[subjectIndex].exams.filter(e => e.id !== examId);
-      saveData();
-      renderAll(); // Actualizar todas las secciones
-      
-      // Si el modal está abierto, actualizar su contenido
-      if (document.getElementById('subjectModal').style.display !== 'none') {
-        loadSubjectModalContent(state.subjects[subjectIndex]);
-      }
-    }
+  if (!confirm('¿Estás seguro de que quieres eliminar este examen?')) return;
+  
+  const subjectIndex = state.subjects.findIndex(s => s.id === subjectId);
+  if (subjectIndex === -1) return;
+  
+  const examIndex = state.subjects[subjectIndex].exams.findIndex(e => e.id === examId);
+  if (examIndex === -1) return;
+  
+  // Eliminar del calendario y eventos ANTES de eliminar del subject
+  removeExamFromEvents(examId);
+  
+  // Eliminar examen
+  state.subjects[subjectIndex].exams.splice(examIndex, 1);
+  
+  saveData();
+  renderAll();
+  loadSubjectModalContent(state.subjects[subjectIndex]);
+}
+
+// Función para sincronizar examen con eventos y calendario
+function syncExamToEvents(subject, exam) {
+  // Crear evento para la sección "Todos los eventos"
+  const eventId = `exam_${exam.id}`;
+  
+  // Eliminar evento existente si existe
+  if (state.events) {
+    state.events = state.events.filter(e => e.id !== eventId);
+  } else {
+    state.events = [];
   }
+  
+  // Agregar nuevo evento
+  state.events.push({
+    id: eventId,
+    title: `${exam.type}: ${exam.name}`,
+    date: exam.date,
+    type: 'exam',
+    subject: subject.name,
+    details: exam.topics,
+    color: subject.color || '#3498db'
+  });
+  
+  // Sincronizar con calendario
+  if (typeof addEventToCalendar === 'function') {
+    addEventToCalendar({
+      id: eventId,
+      title: `${exam.type}: ${exam.name}`,
+      date: exam.date,
+      type: 'exam',
+      subject: subject.name
+    });
+  }
+  
+  saveData();
+}
+
+// Función para eliminar examen de eventos y calendario
+function removeExamFromEvents(examId) {
+  const eventId = `exam_${examId}`;
+  
+  // Eliminar de eventos
+  if (state.events) {
+    state.events = state.events.filter(e => e.id !== eventId);
+  }
+  
+  // Eliminar del calendario
+  if (typeof removeEventFromCalendar === 'function') {
+    removeEventFromCalendar(eventId);
+  }
+  
+  saveData();
 }

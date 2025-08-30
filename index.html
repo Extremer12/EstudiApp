@@ -88,6 +88,22 @@
         <div id="calendar"></div>
       </section>
 
+      <!-- Todos los Eventos -->
+      <section class="card events-list-section">
+        <div class="card-header">
+          <h2>Todos los Eventos</h2>
+          <div class="events-filters">
+            <select id="eventFilter" onchange="renderAllEvents()">
+              <option value="all">Todos</option>
+              <option value="pending">Pendientes</option>
+              <option value="completed">Completados</option>
+              <option value="upcoming">Próximos 7 días</option>
+            </select>
+          </div>
+        </div>
+        <div id="allEventsList" class="events-list"></div>
+      </section>
+
       <!-- Pomodoro Timer -->
       <section class="card pomodoro-section">
         <div class="card-header">
@@ -119,22 +135,6 @@
             <div class="session-schedule" id="sessionSchedule"></div>
           </div>
         </div>
-      </section>
-
-      <!-- Todos los Eventos -->
-      <section class="card events-list-section">
-        <div class="card-header">
-          <h2>Todos los Eventos</h2>
-          <div class="events-filters">
-            <select id="eventFilter" onchange="renderAllEvents()">
-              <option value="all">Todos</option>
-              <option value="pending">Pendientes</option>
-              <option value="completed">Completados</option>
-              <option value="upcoming">Próximos 7 días</option>
-            </select>
-          </div>
-        </div>
-        <div id="allEventsList" class="events-list"></div>
       </section>
     </main>
 
