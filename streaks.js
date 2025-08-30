@@ -11,11 +11,16 @@ function initializeStreakSystem() {
       dailyGoal: 60,
       lastStudyDate: null,
       todayStudyTime: 0,
-      streakHistory: []
+      streakHistory: [],
+      realTimeMinutes: 0,
+      sessionStartTime: null,
+      isSessionActive: false,
+      minimumDailyTime: 15 // Mínimo 15 minutos para validar racha
     };
     saveData(state);
   }
   updateStreakDisplay();
+  startRealTimeTracking();
 }
 
 // Actualizar tiempo de estudio del día
@@ -29,6 +34,7 @@ function updateTodayStudyTime(minutes) {
   // Resetear si es un nuevo día
   if (state.streakData.lastStudyDate !== today) {
     state.streakData.todayStudyTime = 0;
+    state.streakData.realTimeMinutes = 0;
   }
   
   state.streakData.todayStudyTime += minutes;
@@ -41,105 +47,406 @@ function updateTodayStudyTime(minutes) {
   saveData(state);
 }
 
+// Iniciar sesión de estudio (conectado con Pomodoro)
+function startStudySession() {
+  if (!state.streakData) {
+    initializeStreakSystem();
+  }
+  
+  state.streakData.sessionStartTime = new Date();
+  state.streakData.isSessionActive = true;
+  
+  // Resetear tiempo real si es un nuevo día
+  const today = new Date().toDateString();
+  if (state.streakData.lastStudyDate !== today) {
+    state.streakData.realTimeMinutes = 0;
+    state.streakData.todayStudyTime = 0;
+  }
+  
+  updateStreakDisplay();
+  saveData(state);
+}
+
+// Finalizar sesión de estudio
+function endStudySession() {
+  if (!state.streakData || !state.streakData.isSessionActive) {
+    return;
+  }
+  
+  const sessionEnd = new Date();
+  const sessionDuration = Math.floor((sessionEnd - state.streakData.sessionStartTime) / (1000 * 60));
+  
+  // Solo contar si la sesión duró al menos 1 minuto
+  if (sessionDuration >= 1) {
+    updateTodayStudyTime(sessionDuration);
+  }
+  
+  state.streakData.isSessionActive = false;
+  state.streakData.sessionStartTime = null;
+  
+  updateStreakDisplay();
+  saveData(state);
+}
+
+// Actualizar tiempo en tiempo real
+function updateRealTimeTracking() {
+  if (!state.streakData || !state.streakData.isSessionActive) {
+    return;
+  }
+  
+  const now = new Date();
+  const sessionDuration = Math.floor((now - state.streakData.sessionStartTime) / (1000 * 60));
+  
+  const today = new Date().toDateString();
+  if (state.streakData.lastStudyDate !== today) {
+    state.streakData.realTimeMinutes = sessionDuration;
+  } else {
+    state.streakData.realTimeMinutes = state.streakData.todayStudyTime + sessionDuration;
+  }
+  
+  updateStreakDisplay();
+}
+
+// Iniciar seguimiento en tiempo real
+let realTimeTrackingInterval;
+function startRealTimeTracking() {
+  // Limpiar intervalo anterior si existe
+  if (realTimeTrackingInterval) {
+    clearInterval(realTimeTrackingInterval);
+  }
+  // Actualizar cada 60 segundos para mejor rendimiento
+  realTimeTrackingInterval = setInterval(updateRealTimeTracking, 60000);
+}
+
 // Verificar cumplimiento del objetivo diario
 function checkDailyGoalCompletion() {
-  const today = new Date().toDateString();
-  const todayStudyTime = state.streakData.todayStudyTime;
-  const dailyGoal = state.streakData.dailyGoal;
+  if (!state.streakData) return;
   
-  if (todayStudyTime >= dailyGoal) {
-    // Verificar si ya se registró la racha de hoy
-    const lastStreakDate = state.streakData.streakHistory.length > 0 
-      ? state.streakData.streakHistory[state.streakData.streakHistory.length - 1].date
-      : null;
+  const today = new Date().toDateString();
+  const currentTime = state.streakData.realTimeMinutes || state.streakData.todayStudyTime;
+  
+  // Solo verificar si es el día actual
+  if (state.streakData.lastStudyDate === today || state.streakData.isSessionActive) {
+    // Verificar tanto el objetivo diario como el mínimo para racha
+    const goalCompleted = currentTime >= state.streakData.dailyGoal;
+    const minimumMet = currentTime >= state.streakData.minimumDailyTime;
     
-    if (lastStreakDate !== today) {
-      // Incrementar racha
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayString = yesterday.toDateString();
+    if (goalCompleted) {
+      // Incrementar racha solo si no se había cumplido antes hoy
+      const streakHistory = state.streakData.streakHistory || [];
+      const todayEntry = streakHistory.find(entry => entry.date === today);
       
-      if (lastStreakDate === yesterdayString || state.streakData.currentStreak === 0) {
+      if (!todayEntry || !todayEntry.goalCompleted) {
         state.streakData.currentStreak++;
-      } else {
-        // Se rompió la racha
-        state.streakData.currentStreak = 1;
+        
+        // Actualizar mejor racha
+        if (state.streakData.currentStreak > state.streakData.bestStreak) {
+          state.streakData.bestStreak = state.streakData.currentStreak;
+          showStreakAchievement();
+        }
+        
+        // Registrar en historial
+        if (todayEntry) {
+          todayEntry.goalCompleted = true;
+          todayEntry.minimumMet = minimumMet;
+        } else {
+          streakHistory.push({
+            date: today,
+            studyTime: currentTime,
+            goalCompleted: true,
+            minimumMet: minimumMet
+          });
+        }
+        
+        state.streakData.streakHistory = streakHistory;
+        showDailyGoalAchievement();
       }
+    } else if (minimumMet) {
+      // Si se cumplió el mínimo pero no el objetivo, mantener racha
+      const streakHistory = state.streakData.streakHistory || [];
+      const todayEntry = streakHistory.find(entry => entry.date === today);
       
-      // Actualizar mejor racha
-      if (state.streakData.currentStreak > state.streakData.bestStreak) {
-        state.streakData.bestStreak = state.streakData.currentStreak;
-        showStreakAchievement();
+      if (!todayEntry || !todayEntry.minimumMet) {
+        if (!todayEntry) {
+          streakHistory.push({
+            date: today,
+            studyTime: currentTime,
+            goalCompleted: false,
+            minimumMet: true
+          });
+          state.streakData.streakHistory = streakHistory;
+        } else {
+          todayEntry.minimumMet = true;
+        }
       }
-      
-      // Registrar en historial
-      state.streakData.streakHistory.push({
-        date: today,
-        studyTime: todayStudyTime,
-        goalMet: true
-      });
-      
-      showDailyGoalAchievement();
     }
   }
 }
 
 // Verificar continuidad de racha
 function checkStreakContinuity() {
+  if (!state.streakData) return;
+  
   const today = new Date();
-  const yesterday = new Date();
+  const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
   
-  const todayString = today.toDateString();
-  const yesterdayString = yesterday.toDateString();
+  const lastStudyDate = state.streakData.lastStudyDate ? new Date(state.streakData.lastStudyDate) : null;
   
-  // Si no se estudió ayer y había una racha activa, se rompe
-  if (state.streakData.lastStudyDate !== todayString && 
-      state.streakData.lastStudyDate !== yesterdayString && 
-      state.streakData.currentStreak > 0) {
-    
+  // Si no hay fecha de último estudio, resetear racha
+  if (!lastStudyDate) {
     state.streakData.currentStreak = 0;
-    showStreakLostNotification();
-    updateStreakDisplay();
-    saveData(state);
+    return;
   }
+  
+  // Verificar si ayer se cumplió el mínimo de tiempo
+  const yesterdayString = yesterday.toDateString();
+  const todayString = today.toDateString();
+  
+  // Si el último estudio fue ayer, verificar si cumplió el mínimo
+  if (lastStudyDate.toDateString() === yesterdayString) {
+    // Si ayer no se cumplió el mínimo de 15 minutos, se pierde la racha
+    if (state.streakData.todayStudyTime < state.streakData.minimumDailyTime) {
+      if (state.streakData.currentStreak > 0) {
+        showStreakLostNotification();
+      }
+      state.streakData.currentStreak = 0;
+    }
+  }
+  // Si el último estudio no fue ayer ni hoy, se perdió la racha
+  else if (lastStudyDate.toDateString() !== todayString) {
+    if (state.streakData.currentStreak > 0) {
+      showStreakLostNotification();
+    }
+    state.streakData.currentStreak = 0;
+  }
+  
+  saveData(state);
+  updateStreakDisplay();
 }
 
 // Actualizar visualización de rachas
 function updateStreakDisplay() {
-  const currentStreakEl = document.getElementById('currentStreak');
-  const bestStreakEl = document.getElementById('bestStreak');
-  const dailyGoalTimeEl = document.getElementById('dailyGoalTime');
-  const todayStudyTimeEl = document.getElementById('todayStudyTime');
-  const goalTimeEl = document.getElementById('goalTime');
-  const dailyProgressFill = document.getElementById('dailyProgressFill');
-  
   if (!state.streakData) {
     initializeStreakSystem();
     return;
   }
   
-  // Actualizar números de racha
+  updateCompactDisplay();
+  updateExpandedDisplay();
+  updateHistoryDisplay();
+}
+
+// Actualizar vista compacta
+function updateCompactDisplay() {
+  const compactCurrentStreak = document.getElementById('compactCurrentStreak');
+  const compactTimeDisplay = document.getElementById('compactTimeDisplay');
+  const compactProgressFill = document.getElementById('compactProgressFill');
+  const streakFireIcon = document.getElementById('streakFireIcon');
+  
+  if (compactCurrentStreak) {
+    compactCurrentStreak.textContent = state.streakData.currentStreak;
+  }
+  
+  const currentTime = state.streakData.realTimeMinutes || state.streakData.todayStudyTime || 0;
+  const minimumTime = state.streakData.minimumDailyTime || '--';
+  
+  if (compactTimeDisplay) {
+    compactTimeDisplay.textContent = `${currentTime} / ${minimumTime} min`;
+  }
+  
+  if (compactProgressFill) {
+    const progress = Math.min((currentTime / minimumTime) * 100, 100);
+    compactProgressFill.style.width = `${progress}%`;
+    
+    // Cambiar color según progreso del mínimo
+    if (progress >= 100) {
+      compactProgressFill.style.background = 'linear-gradient(90deg, #2ecc71, #27ae60)';
+    } else if (progress >= 75) {
+      compactProgressFill.style.background = 'linear-gradient(90deg, #f39c12, #e67e22)';
+    } else {
+      compactProgressFill.style.background = 'linear-gradient(90deg, #4ecdc4, #44a08d)';
+    }
+  }
+  
+  // Animar ícono de fuego cuando se alcanza el mínimo
+  if (streakFireIcon) {
+    const streakSection = document.querySelector('.streak-section');
+    if (currentTime >= minimumTime) {
+      streakSection.classList.add('minimum-achieved');
+    } else {
+      streakSection.classList.remove('minimum-achieved');
+    }
+    
+    // Indicar actividad en tiempo real
+    if (state.streakData.isSessionActive) {
+      streakSection.classList.add('real-time-active');
+    } else {
+      streakSection.classList.remove('real-time-active');
+    }
+  }
+}
+
+// Actualizar vista expandida
+function updateExpandedDisplay() {
+  const currentStreakEl = document.getElementById('currentStreak');
+  const bestStreakEl = document.getElementById('bestStreak');
+  const realTimeMinutesEl = document.getElementById('realTimeMinutes');
+  const dailyGoalTimeEl = document.getElementById('dailyGoalTime');
+  const todayStudyTimeEl = document.getElementById('todayStudyTime');
+  const goalTimeEl = document.getElementById('goalTime');
+  const dailyProgressFill = document.getElementById('dailyProgressFill');
+  const realTimeIndicator = document.getElementById('realTimeIndicator');
+  
   if (currentStreakEl) currentStreakEl.textContent = state.streakData.currentStreak;
   if (bestStreakEl) bestStreakEl.textContent = state.streakData.bestStreak;
   if (dailyGoalTimeEl) dailyGoalTimeEl.textContent = state.streakData.dailyGoal;
-  if (todayStudyTimeEl) todayStudyTimeEl.textContent = state.streakData.todayStudyTime;
   if (goalTimeEl) goalTimeEl.textContent = state.streakData.dailyGoal;
   
-  // Actualizar barra de progreso
+  const currentTime = state.streakData.realTimeMinutes || state.streakData.todayStudyTime;
+  
+  if (realTimeMinutesEl) realTimeMinutesEl.textContent = currentTime;
+  if (todayStudyTimeEl) todayStudyTimeEl.textContent = state.streakData.todayStudyTime;
+  
+  // Indicador de tiempo real
+  if (realTimeIndicator) {
+    if (state.streakData.isSessionActive) {
+      realTimeIndicator.textContent = '🔴 En vivo';
+      realTimeIndicator.style.display = 'inline';
+    } else {
+      realTimeIndicator.style.display = 'none';
+    }
+  }
+  
+  // Actualizar barra de progreso principal
   if (dailyProgressFill) {
-    const progress = Math.min((state.streakData.todayStudyTime / state.streakData.dailyGoal) * 100, 100);
+    const progress = Math.min((currentTime / state.streakData.dailyGoal) * 100, 100);
     dailyProgressFill.style.width = `${progress}%`;
     
     // Cambiar color según progreso
     if (progress >= 100) {
-      dailyProgressFill.style.background = 'linear-gradient(90deg, #10b981, #059669)';
-    } else if (progress >= 75) {
-      dailyProgressFill.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+      dailyProgressFill.style.background = 'linear-gradient(90deg, #2ecc71, #27ae60)';
+    } else if (progress >= 50) {
+      dailyProgressFill.style.background = 'linear-gradient(90deg, #f39c12, #e67e22)';
     } else {
-      dailyProgressFill.style.background = 'linear-gradient(90deg, #6366f1, #4f46e5)';
+      dailyProgressFill.style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
     }
   }
+}
+
+// Actualizar historial
+function updateHistoryDisplay() {
+  const historyList = document.getElementById('streakHistoryList');
+  if (!historyList || !state.streakData.streakHistory) return;
+  
+  const recentHistory = state.streakData.streakHistory.slice(-7).reverse();
+  
+  historyList.innerHTML = '';
+  
+  if (recentHistory.length === 0) {
+    historyList.innerHTML = '<div class="history-item"><span>No hay historial disponible</span></div>';
+    return;
+  }
+  
+  recentHistory.forEach(entry => {
+    const historyItem = document.createElement('div');
+    historyItem.className = 'history-item';
+    
+    const date = new Date(entry.date).toLocaleDateString('es-ES', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+    
+    const status = entry.goalCompleted ? '✅ Objetivo' : 
+                  entry.minimumMet ? '⭐ Mínimo' : '❌ Incompleto';
+    
+    historyItem.innerHTML = `
+      <span class="history-date">${date}</span>
+      <span class="history-time">${entry.studyTime} min</span>
+      <span class="history-status">${status}</span>
+    `;
+    
+    historyList.appendChild(historyItem);
+  });
+}
+
+// Función para expandir/contraer la sección de rachas
+function toggleStreakExpansion() {
+  // Abrir modal de estadísticas de rachas
+  updateStreakModalData();
+  openModal('streakStatsModal');
+}
+
+// Nueva función para actualizar los datos del modal
+function updateStreakModalData() {
+  const currentStreakData = getCurrentStreakData();
+  const todayData = getTodayData();
+  const bestStreakData = getBestStreakData();
+  const goalData = getGoalData();
+  
+  // Actualizar elementos del modal
+  const modalCurrentStreak = document.getElementById('modalCurrentStreak');
+  const modalRealTimeMinutes = document.getElementById('modalRealTimeMinutes');
+  const modalBestStreak = document.getElementById('modalBestStreak');
+  const modalDailyGoalTime = document.getElementById('modalDailyGoalTime');
+  const modalTodayStudyTime = document.getElementById('modalTodayStudyTime');
+  const modalGoalTime = document.getElementById('modalGoalTime');
+  const modalDailyProgressFill = document.getElementById('modalDailyProgressFill');
+  const modalRealTimeIndicator = document.getElementById('modalRealTimeIndicator');
+  
+  if (modalCurrentStreak) modalCurrentStreak.textContent = currentStreakData.current || 0;
+  if (modalRealTimeMinutes) modalRealTimeMinutes.textContent = todayData.minutes || 0;
+  if (modalBestStreak) modalBestStreak.textContent = bestStreakData.best || 0;
+  if (modalDailyGoalTime) modalDailyGoalTime.textContent = goalData.daily || 60;
+  if (modalTodayStudyTime) modalTodayStudyTime.textContent = todayData.minutes || 0;
+  if (modalGoalTime) modalGoalTime.textContent = goalData.daily || 60;
+  
+  // Actualizar barra de progreso
+  if (modalDailyProgressFill && goalData.daily) {
+    const progressPercentage = Math.min((todayData.minutes / goalData.daily) * 100, 100);
+    modalDailyProgressFill.style.width = progressPercentage + '%';
+    
+    // Actualizar color de la barra según el progreso
+    if (progressPercentage >= 100) {
+      modalDailyProgressFill.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+    } else if (progressPercentage >= 50) {
+      modalDailyProgressFill.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+    } else {
+      modalDailyProgressFill.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+    }
+  }
+  
+  // Actualizar indicador en tiempo real si está activo
+  if (modalRealTimeIndicator) {
+    const isTimerActive = checkIfTimerActive();
+    modalRealTimeIndicator.style.display = isTimerActive ? 'inline' : 'none';
+    if (isTimerActive) {
+      modalRealTimeIndicator.textContent = '🔴 En vivo';
+    }
+  }
+}
+
+// Funciones auxiliares para obtener datos
+function getCurrentStreakData() {
+  return { current: state.streaks?.current || 0 };
+}
+
+function getTodayData() {
+  const today = new Date().toDateString();
+  return { minutes: state.dailyTime?.[today] || 0 };
+}
+
+function getBestStreakData() {
+  return { best: state.streaks?.best || 0 };
+}
+
+function getGoalData() {
+  return { daily: state.dailyGoal || 60 };
+}
+
+function checkIfTimerActive() {
+  return state.isTimerRunning || false;
 }
 
 // Configurar objetivo diario
@@ -313,8 +620,8 @@ function initializeStreaks() {
   // Verificar continuidad de racha al cargar
   checkStreakContinuity();
   
-  // Verificar cada hora si se mantiene la racha
-  setInterval(checkStreakContinuity, 60 * 60 * 1000);
+  // Verificar continuidad de rachas cada 2 horas para mejor rendimiento
+  setInterval(checkStreakContinuity, 2 * 60 * 60 * 1000);
 }
 
 // Exportar funciones principales
@@ -322,10 +629,36 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeStreakSystem,
     updateTodayStudyTime,
+    checkDailyGoalCompletion,
+    checkStreakContinuity,
     updateStreakDisplay,
     setDailyGoal,
     shareStreak,
     getStreakStats,
-    initializeStreaks
+    startStudySession,
+    endStudySession,
+    updateRealTimeTracking,
+    toggleStreakExpansion,
+    updateCompactDisplay,
+    updateExpandedDisplay,
+    updateHistoryDisplay
   };
+} else {
+  // Exponer funciones globalmente para el navegador
+  window.initializeStreakSystem = initializeStreakSystem;
+  window.updateTodayStudyTime = updateTodayStudyTime;
+  window.checkDailyGoalCompletion = checkDailyGoalCompletion;
+  window.checkStreakContinuity = checkStreakContinuity;
+  window.updateStreakDisplay = updateStreakDisplay;
+  window.setDailyGoal = setDailyGoal;
+  window.shareStreak = shareStreak;
+  window.getStreakStats = getStreakStats;
+  window.startStudySession = startStudySession;
+  window.endStudySession = endStudySession;
+  window.updateRealTimeTracking = updateRealTimeTracking;
+  window.toggleStreakExpansion = toggleStreakExpansion;
+  window.updateCompactDisplay = updateCompactDisplay;
+  window.updateExpandedDisplay = updateExpandedDisplay;
+  window.updateHistoryDisplay = updateHistoryDisplay;
+  window.initializeStreaks = initializeStreaks;
 }

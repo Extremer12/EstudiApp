@@ -148,21 +148,28 @@ function createDayElement(year, month, day) {
 function getEventsForDate(dateStr) {
   const events = [];
   
-  // Obtener recordatorios
-  const reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
-  const dateReminders = reminders.filter(reminder => reminder.date === dateStr);
-  events.push(...dateReminders);
+  // Obtener recordatorios del estado global
+  if (state && state.reminders) {
+    const dateReminders = state.reminders.filter(reminder => reminder.date === dateStr && !reminder.completed);
+    events.push(...dateReminders.map(reminder => ({...reminder, type: 'reminder'})));
+  }
   
-  // Obtener exámenes
-  const subjects = JSON.parse(localStorage.getItem('subjects') || '[]');
-  subjects.forEach(subject => {
-    if (subject.exams) {
-      const subjectExams = subject.exams.filter(exam => exam.date === dateStr);
-      events.push(...subjectExams.map(exam => ({...exam, subject: subject.name, type: 'exam'})));
-    }
+  // Obtener exámenes del estado global
+  if (state && state.subjects) {
+    state.subjects.forEach(subject => {
+      if (subject.exams) {
+        const subjectExams = subject.exams.filter(exam => exam.date === dateStr);
+        events.push(...subjectExams.map(exam => ({...exam, subject: subject.name, type: 'exam'})));
+      }
+    });
+  }
+  
+  // Ordenar eventos por hora
+  return events.sort((a, b) => {
+    const timeA = a.time || '00:00';
+    const timeB = b.time || '00:00';
+    return timeA.localeCompare(timeB);
   });
-  
-  return events;
 }
 
 function selectDate(dateStr) {
@@ -245,13 +252,16 @@ function showDayEvents(dateStr) {
       </div>
     `;
   } else {
+    const eventsToShow = events.slice(0, 3);
+    const hasMoreEvents = events.length > 3;
+    
     eventsList.innerHTML = `
       <div class="events-count">
         <span class="count-badge">${events.length}</span>
         <span class="count-text">${events.length === 1 ? 'evento programado' : 'eventos programados'}</span>
       </div>
       <div class="events-container">
-        ${events.map(event => {
+        ${eventsToShow.map(event => {
           const time = event.time || 'Todo el día';
           const icon = event.type === 'exam' ? '📝' : event.type === 'reminder' ? '⏰' : '📅';
           const subject = event.subject ? ` • ${event.subject}` : '';
@@ -274,10 +284,36 @@ function showDayEvents(dateStr) {
           `;
         }).join('')}
       </div>
+      ${hasMoreEvents ? `
+        <div class="view-more-container">
+          <button class="btn-view-more" onclick="viewAllEvents(); closeModal('dayEventsModal');">
+            <span class="view-more-icon">👁️</span>
+            <span class="view-more-text">Ver todos los eventos (${events.length})</span>
+          </button>
+        </div>
+      ` : ''}
     `;
   }
   
   openModal('dayEventsModal');
+}
+
+function viewAllEvents() {
+  // Scroll hacia la sección de todos los eventos
+  const eventsSection = document.querySelector('.events-list-section');
+  if (eventsSection) {
+    eventsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Agregar un efecto visual temporal para destacar la sección
+    eventsSection.style.transition = 'all 0.3s ease';
+    eventsSection.style.transform = 'scale(1.02)';
+    eventsSection.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+    
+    setTimeout(() => {
+      eventsSection.style.transform = 'scale(1)';
+      eventsSection.style.boxShadow = '';
+    }, 300);
+  }
 }
 
 function goToToday() {
@@ -318,10 +354,15 @@ function addEventToSelectedDay() {
   // Abrir la modal de recordatorios con la fecha preseleccionada
   openModal('reminderModal');
   
-  // Preseleccionar solo la fecha, manteniendo el campo de hora vacío
-  const datetimeInput = document.querySelector('#reminderModal #reminderDatetime');
-  if (datetimeInput) {
-    // Establecer solo la fecha, sin hora específica
-    datetimeInput.value = selectedDate + 'T09:00';
+  // Preseleccionar la fecha y hora en los campos separados
+  const dateInput = document.querySelector('#reminderModal #reminderDate');
+  const timeInput = document.querySelector('#reminderModal #reminderTime');
+  
+  if (dateInput) {
+    dateInput.value = selectedDate;
+  }
+  
+  if (timeInput) {
+    timeInput.value = '09:00';
   }
 }

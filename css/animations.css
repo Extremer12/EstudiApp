@@ -1,0 +1,248 @@
+/* ========================================
+   ANIMACIONES INTERACTIVAS PARA TEMPORIZADOR
+======================================== */
+
+/* Animaciones base para elementos del temporizador */
+.session-title {
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.session-progress-text {
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+/* Estados de animación para sesión activa */
+.session-title.active {
+  animation: pulseGlow 2s ease-in-out infinite;
+  text-shadow: 0 0 10px var(--primary-300);
+}
+
+.session-progress-text.active {
+  animation: slideIn 0.5s ease-out;
+  color: var(--primary-600);
+  font-weight: 600;
+}
+
+/* Animación de pulsación con brillo */
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 5px var(--primary-200);
+  }
+  50% {
+    transform: scale(1.02);
+    text-shadow: 0 0 15px var(--primary-400), 0 0 25px var(--primary-300);
+  }
+}
+
+/* Animación de entrada suave */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Estados de notificación para descansos */
+.session-title.break-notification {
+  animation: breakAlert 1s ease-in-out 3;
+  color: var(--success-600);
+}
+
+.session-progress-text.break-notification {
+  animation: bounceIn 0.6s ease-out;
+  color: var(--success-600);
+  font-weight: 700;
+}
+
+/* Animación de alerta para descanso */
+@keyframes breakAlert {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    background: transparent;
+  }
+  25% {
+    transform: scale(1.05) rotate(-1deg);
+    background: linear-gradient(45deg, var(--success-100), transparent);
+  }
+  75% {
+    transform: scale(1.05) rotate(1deg);
+    background: linear-gradient(-45deg, var(--success-100), transparent);
+  }
+}
+
+/* Animación de rebote para notificaciones */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-20px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Estados de enfoque durante estudio */
+.session-title.focus-mode {
+  animation: focusPulse 3s ease-in-out infinite;
+  border-left: 4px solid var(--primary-500);
+  padding-left: var(--space-md);
+  background: linear-gradient(90deg, var(--primary-50), transparent);
+}
+
+.session-progress-text.focus-mode {
+  animation: progressGlow 2s ease-in-out infinite alternate;
+}
+
+/* Animación de enfoque suave */
+@keyframes focusPulse {
+  0%, 100% {
+    border-left-color: var(--primary-500);
+    background: linear-gradient(90deg, var(--primary-50), transparent);
+  }
+  50% {
+    border-left-color: var(--primary-700);
+    background: linear-gradient(90deg, var(--primary-100), transparent);
+  }
+}
+
+/* Brillo progresivo para texto de progreso */
+@keyframes progressGlow {
+  from {
+    text-shadow: 0 0 5px var(--primary-200);
+    color: var(--primary-600);
+  }
+  to {
+    text-shadow: 0 0 10px var(--primary-400);
+    color: var(--primary-700);
+  }
+}
+
+/* Estados de pausa */
+.session-title.paused {
+  animation: pausedBlink 1.5s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.session-progress-text.paused {
+  opacity: 0.6;
+  color: var(--text-secondary);
+}
+
+/* Animación de parpadeo para pausa */
+@keyframes pausedBlink {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Estados de finalización */
+.session-title.completed {
+  animation: completionCelebration 0.8s ease-out;
+  color: var(--success-600);
+}
+
+.session-progress-text.completed {
+  animation: completionSlide 0.8s ease-out;
+  color: var(--success-600);
+  font-weight: 700;
+}
+
+/* Animación de celebración */
+@keyframes completionCelebration {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(-2deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(2deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Deslizamiento de finalización */
+@keyframes completionSlide {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Efectos de hover mejorados */
+.session-title:hover {
+  transform: translateY(-2px);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.session-progress-text:hover {
+  transform: scale(1.02);
+  color: var(--primary-700);
+}
+
+/* Adaptación para modo oscuro */
+[data-theme="dark"] .session-title.active {
+  text-shadow: 0 0 10px var(--primary-400);
+}
+
+[data-theme="dark"] .session-title.focus-mode {
+  background: linear-gradient(90deg, var(--primary-900), transparent);
+}
+
+/* Animaciones responsivas */
+@media (max-width: 768px) {
+  .session-title.active {
+    animation-duration: 2.5s;
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% {
+      transform: scale(1);
+      text-shadow: 0 0 3px var(--primary-200);
+    }
+    50% {
+      transform: scale(1.01);
+      text-shadow: 0 0 8px var(--primary-400);
+    }
+  }
+}
+
+/* Reducir animaciones para usuarios con preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .session-title,
+  .session-progress-text {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .session-title:hover,
+  .session-progress-text:hover {
+    transform: none !important;
+  }
+}

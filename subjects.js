@@ -1,30 +1,8 @@
 // GESTIÓN DE MATERIAS
 
-function createExpandedSubject(basicSubject) {
-  return {
-    id: basicSubject.id || Date.now().toString(),
-    name: basicSubject.name,
-    professor: basicSubject.professor || '',
-    schedule: basicSubject.schedule || '',
-    color: basicSubject.color || '#3498db',
-    exams: basicSubject.exams || [],
-    consultationHours: basicSubject.consultationHours || [],
-    notes: basicSubject.notes || '',
-    materials: basicSubject.materials || [],
-    createdAt: basicSubject.createdAt || new Date().toISOString()
-  };
-}
+/* createExpandedSubject eliminada - ya existe en core.js */
 
-function migrateSubjectsToExpandedFormat() {
-  if (state.subjects && state.subjects.length > 0) {
-    state.subjects = state.subjects.map(subject => {
-      if (!subject.exams) {
-        return createExpandedSubject(subject);
-      }
-      return subject;
-    });
-  }
-}
+/* migrateSubjectsToExpandedFormat eliminada - ya existe en core.js */
 
 function renderSubjects() {
   const container = document.getElementById('subjectsList');
@@ -300,6 +278,7 @@ function setupSubjectModalEventListeners(subjectId) {
           });
           
           saveData();
+          renderAll(); // Actualizar todas las secciones
           loadSubjectModalContent(state.subjects[subjectIndex]);
         }
       }
@@ -374,5 +353,61 @@ function setupSubjectModalEventListeners(subjectId) {
       </div>
       <p>Progreso: ${progress}% completado</p>
     `;
+  }
+}
+
+// Función para editar examen
+function editExam(subjectId, examId) {
+  const subject = state.subjects.find(s => s.id === subjectId);
+  if (!subject || !subject.exams) return;
+  
+  const exam = subject.exams.find(e => e.id === examId);
+  if (!exam) return;
+  
+  const examName = prompt('Nombre del examen:', exam.name);
+  const examDate = prompt('Fecha del examen (YYYY-MM-DD):', exam.date);
+  const examTime = prompt('Hora del examen (HH:MM):', exam.time || '09:00');
+  const examType = prompt('Tipo de examen:', exam.type);
+  const examTopics = prompt('Temas del examen:', exam.topics);
+  
+  if (examName && examDate && examType) {
+    const subjectIndex = state.subjects.findIndex(s => s.id === subjectId);
+    const examIndex = subject.exams.findIndex(e => e.id === examId);
+    
+    if (subjectIndex !== -1 && examIndex !== -1) {
+      state.subjects[subjectIndex].exams[examIndex] = {
+        ...exam,
+        name: examName,
+        date: examDate,
+        time: examTime,
+        type: examType,
+        topics: examTopics || 'No especificado'
+      };
+      
+      saveData();
+      renderAll(); // Actualizar todas las secciones
+      
+      // Si el modal está abierto, actualizar su contenido
+      if (document.getElementById('subjectModal').style.display !== 'none') {
+        loadSubjectModalContent(state.subjects[subjectIndex]);
+      }
+    }
+  }
+}
+
+// Función para eliminar examen
+function deleteExam(subjectId, examId) {
+  if (confirm('¿Estás seguro de que quieres eliminar este examen?')) {
+    const subjectIndex = state.subjects.findIndex(s => s.id === subjectId);
+    if (subjectIndex !== -1 && state.subjects[subjectIndex].exams) {
+      state.subjects[subjectIndex].exams = state.subjects[subjectIndex].exams.filter(e => e.id !== examId);
+      saveData();
+      renderAll(); // Actualizar todas las secciones
+      
+      // Si el modal está abierto, actualizar su contenido
+      if (document.getElementById('subjectModal').style.display !== 'none') {
+        loadSubjectModalContent(state.subjects[subjectIndex]);
+      }
+    }
   }
 }

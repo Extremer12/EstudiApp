@@ -1,0 +1,238 @@
+/* ========================================
+   BOTONES 3D PROFESIONALES
+======================================== */
+.btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-base::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--transition-fast);
+}
+
+.btn-base:hover::before {
+  left: 100%;
+}
+
+/* Botón Principal 3D */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: var(--text-inverse);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  box-shadow: var(--btn-shadow-3d);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateY(0);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  box-shadow: var(--btn-shadow-3d-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+  box-shadow: var(--btn-shadow-3d-active);
+  transform: translateY(1px);
+}
+
+/* Botón Pequeño Circular 3D */
+.btn-small,
+.btn-icon {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: var(--text-inverse);
+  width: clamp(36px, 4vw, 44px);
+  height: clamp(36px, 4vw, 44px);
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
+  box-shadow: var(--btn-shadow-3d);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateY(0) scale(1);
+}
+
+.btn-small:hover,
+.btn-icon:hover {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  box-shadow: var(--btn-shadow-3d-hover);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.btn-small:active,
+.btn-icon:active {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+  box-shadow: var(--btn-shadow-3d-active);
+  transform: translateY(0) scale(0.95);
+}
+
+/* Botones de Timer Pomodoro */
+.btn-timer {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: var(--text-inverse);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-lg);
+  min-width: 60px;
+  box-shadow: var(--btn-shadow-3d);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateY(0);
+}
+
+.btn-timer:hover {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  box-shadow: var(--btn-shadow-3d-hover);
+  transform: translateY(-2px);
+}
+
+.btn-timer:active {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+  box-shadow: var(--btn-shadow-3d-active);
+  transform: translateY(1px);
+}
+
+/* Botones de Modal */
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  color: #4a5568;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid #cbd5e0;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.btn-cancel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-cancel:hover {
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
+  color: #2d3748;
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.15),
+    0 3px 6px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px) scale(1.02);
+  border-color: #a0aec0;
+}
+
+.btn-cancel:hover::before {
+  left: 100%;
+}
+
+.btn-cancel:active {
+  background: linear-gradient(135deg, #cbd5e0, #a0aec0);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.12),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.1s ease;
+}
+
+/* Botón de Confirmar */
+.btn-confirm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: white;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  box-shadow: 
+    0 4px 15px rgba(74, 107, 255, 0.3),
+    0 2px 6px rgba(74, 107, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.btn-confirm::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-confirm:hover {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  color: white;
+  box-shadow: 
+    0 6px 20px rgba(74, 107, 255, 0.4),
+    0 3px 8px rgba(74, 107, 255, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px) scale(1.02);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.btn-confirm:hover::before {
+  left: 100%;
+}
+
+.btn-confirm:active {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+  transform: translateY(0) scale(0.98);
+  box-shadow: 
+    0 2px 8px rgba(74, 107, 255, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.1s ease;
+}

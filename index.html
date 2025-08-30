@@ -7,21 +7,30 @@
   <title>EstudiApp</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon-192x192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- CSS Modular - Orden de importación optimizado -->
   <link rel="stylesheet" href="css/variables.css" />
   <link rel="stylesheet" href="css/themes.css" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="stylesheet" href="css/modules.css" />
-  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/buttons.css" />
+  <link rel="stylesheet" href="css/modals.css" />
+  <link rel="stylesheet" href="css/streak-section.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/timer-effects.css" />
+  <link rel="stylesheet" href="css/calendar.css" />
+  <link rel="stylesheet" href="css/events.css" />
+  <link rel="stylesheet" href="css/timer.css" />
+  <link rel="stylesheet" href="css/subjects.css" />
+  <link rel="stylesheet" href="css/forms.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
 </head>
 <body>
   <div class="app-container">
     <!-- Header -->
     <header class="header">
-      <h1>🔔 EstudiApp</h1>
+      <h1>EstudiApp</h1>
       <div class="header-right">
         <button id="darkModeToggle" class="btn-icon">🌙</button>
       </div>
@@ -29,35 +38,29 @@
 
     <!-- Main Dashboard -->
     <main class="main">
-      <!-- Sistema de Rachas -->
-      <section class="card streak-section">
-        <div class="card-header">
-          <h2>🔥 Sistema de Rachas</h2>
-          <button onclick="openModal('goalModal')" class="btn-small">⚙️</button>
-        </div>
-        <div class="streak-content">
-          <div class="streak-stats">
-            <div class="streak-item">
-              <span class="streak-number" id="currentStreak">0</span>
-              <span class="streak-label">Días consecutivos</span>
+      <!-- Sistema de Rachas Compacto -->
+      <section class="card streak-section compact-streak">
+        <div class="streak-compact-header" onclick="toggleStreakExpansion()">
+          <div class="streak-compact-info">
+            <div class="streak-fire-icon" id="streakFireIcon"></div>
+            <div class="streak-compact-stats">
+              <span class="compact-streak-number" id="compactCurrentStreak">0</span>
+              <span class="compact-streak-label">días</span>
             </div>
-            <div class="streak-item">
-              <span class="streak-number" id="bestStreak">0</span>
-              <span class="streak-label">Mejor racha</span>
-            </div>
-          </div>
-          <div class="daily-goal">
-            <div class="goal-progress">
-              <span>Objetivo diario: <span id="dailyGoalTime">60</span> min</span>
-              <div class="progress-bar">
-                <div id="dailyProgressFill" class="progress-fill" style="width: 0%;"></div>
+            <div class="streak-compact-progress">
+              <div class="compact-progress-bar">
+                <div id="compactProgressFill" class="compact-progress-fill" style="width: 0%;"></div>
               </div>
-              <span id="todayStudyTime">0</span> / <span id="goalTime">60</span> min
+              <span class="compact-time-display" id="compactTimeDisplay">0/15 min</span>
             </div>
           </div>
-          <div class="streak-actions">
-            <button onclick="shareStreak()" class="btn-share">📤 Compartir Logro</button>
-          </div>
+          <button class="streak-expand-btn" id="streakExpandBtn">
+            <span class="expand-icon">▼</span>
+          </button>
+        </div>
+        
+        <div class="streak-expanded-content" id="streakExpandedContent" style="display: none;">
+          <!-- Contenido movido al modal streakStatsModal -->
         </div>
       </section>
 
@@ -121,7 +124,7 @@
       <!-- Todos los Eventos -->
       <section class="card events-list-section">
         <div class="card-header">
-          <h2>📅 Todos los Eventos</h2>
+          <h2>Todos los Eventos</h2>
           <div class="events-filters">
             <select id="eventFilter" onchange="renderAllEvents()">
               <option value="all">Todos</option>
@@ -213,6 +216,57 @@
           <div class="subject-section">
             <h4>📊 Progreso</h4>
             <div class="progress-info" id="modal-progress-info"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para estadísticas de rachas -->
+    <div id="streakStatsModal" class="modal">
+      <div class="modal-content streak-modal-content">
+        <div class="streak-modal-header">
+          <h3>Estadísticas de Rachas</h3>
+          <button onclick="closeModal('streakStatsModal')" class="modal-close-btn">✕</button>
+        </div>
+        
+        <div class="streak-modal-body">
+          <div class="streak-top-stats">
+            <div class="streak-stat-item">
+              <span class="streak-number" id="modalCurrentStreak">0</span>
+              <span class="streak-label">Días consecutivos</span>
+            </div>
+            <div class="streak-stat-item">
+              <span class="streak-number" id="modalRealTimeMinutes">0</span>
+              <span class="streak-label">Minutos hoy</span>
+            </div>
+          </div>
+          
+          <div class="daily-goal-detailed">
+            <div class="goal-progress">
+              <div class="goal-header">
+                <span>Objetivo diario: <span id="modalDailyGoalTime">60</span> min</span>
+                <span class="minimum-indicator">Mínimo: 15 min</span>
+              </div>
+              <div class="progress-bar">
+                <div id="modalDailyProgressFill" class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <div class="progress-text">
+                <span id="modalTodayStudyTime">0</span> / <span id="modalGoalTime">60</span> min
+                <span class="real-time-indicator" id="modalRealTimeIndicator"></span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="streak-bottom-stats">
+            <div class="streak-stat-item best-streak">
+              <span class="streak-number" id="modalBestStreak">0</span>
+              <span class="streak-label">Mejor racha</span>
+            </div>
+          </div>
+          
+          <div class="streak-actions">
+            <button onclick="openModal('goalModal')" class="btn-secondary">⚙️ Configurar</button>
+            <button onclick="shareStreak()" class="btn-share">📤 Compartir</button>
           </div>
         </div>
       </div>

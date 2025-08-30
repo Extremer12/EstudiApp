@@ -38,6 +38,13 @@ function addReminder() {
   closeModal('reminderModal');
   resetForm('reminderModal');
   renderAll();
+  
+  // Limpiar el formulario
+  document.getElementById('reminder-title').value = '';
+  document.getElementById('reminder-description').value = '';
+  document.getElementById('reminder-date').value = '';
+  document.getElementById('reminder-time').value = '';
+  document.getElementById('reminder-subject').value = '';
 }
 
 function editReminder(reminderId) {
@@ -79,6 +86,7 @@ function editReminder(reminderId) {
       
       saveData();
       closeModal('reminderModal');
+      renderAll(); // Actualizar todas las secciones
       
       // Restaurar el comportamiento original del botón
       saveBtn.onclick = addReminder;
@@ -92,6 +100,7 @@ function deleteReminder(reminderId) {
   if (confirm('¿Estás seguro de que quieres eliminar este recordatorio?')) {
     state.reminders = state.reminders.filter(r => r.id !== reminderId);
     saveData();
+    renderAll(); // Actualizar todas las secciones
   }
 }
 
@@ -100,6 +109,7 @@ function toggleReminderComplete(reminderId) {
   if (reminder) {
     reminder.completed = !reminder.completed;
     saveData();
+    renderAll(); // Actualizar todas las secciones
   }
 }
 
@@ -156,14 +166,14 @@ function renderUpcomingEvents() {
   if (!container) return;
   
   const today = new Date();
-  const nextWeek = new Date();
-  nextWeek.setDate(today.getDate() + 7);
+  const futureLimit = new Date();
+  futureLimit.setDate(today.getDate() + 30); // Buscar en los próximos 30 días
   
   // Obtener eventos próximos (recordatorios y exámenes)
   const upcomingReminders = state.reminders
     .filter(reminder => {
       const reminderDate = new Date(`${reminder.date}T${reminder.time}`);
-      return reminderDate >= today && reminderDate <= nextWeek && !reminder.completed;
+      return reminderDate >= today && reminderDate <= futureLimit && !reminder.completed;
     })
     .sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
   
@@ -172,7 +182,7 @@ function renderUpcomingEvents() {
     if (subject.exams) {
       subject.exams.forEach(exam => {
         const examDate = new Date(exam.date);
-        if (examDate >= today && examDate <= nextWeek) {
+        if (examDate >= today && examDate <= futureLimit) {
           upcomingExams.push({
             ...exam,
             subjectName: subject.name,
@@ -192,65 +202,176 @@ function renderUpcomingEvents() {
     });
   
   if (allEvents.length === 0) {
-    container.innerHTML = '<p class="empty-state">No hay eventos próximos</p>';
+    container.innerHTML = '<div class="next-event-empty"><p>No hay eventos próximos</p><small>Agrega eventos en la sección "Todos los Eventos"</small></div>';
     return;
   }
   
-  container.innerHTML = allEvents.slice(0, 5).map(event => {
-    if (event.type === 'exam') {
-      return `
-        <div class="event-item exam-event" style="border-left: 4px solid ${event.subjectColor}">
-          <div class="event-header">
-            <h4>📝 ${event.name}</h4>
-            <span class="event-date">${new Date(event.date).toLocaleDateString()}</span>
+  // Mostrar solo el evento más próximo
+  const nextEvent = allEvents[0];
+  
+  if (nextEvent.type === 'exam') {
+    const eventDate = new Date(nextEvent.date);
+    const daysUntil = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
+    
+    container.innerHTML = `
+      <div class="next-event-card exam-card" style="--accent-color: ${nextEvent.subjectColor}">
+        <div class="next-event-icon">📝</div>
+        <div class="next-event-content">
+          <h3 class="next-event-title">${nextEvent.name}</h3>
+          <p class="next-event-subject">${nextEvent.subjectName}</p>
+          <div class="next-event-date">
+            <span class="date-text">${eventDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+            <span class="days-until">${daysUntil === 0 ? 'Hoy' : daysUntil === 1 ? 'Mañana' : `En ${daysUntil} días`}</span>
           </div>
-          <p class="event-subject">${event.subjectName} - ${event.type}</p>
-          <p class="event-description">${event.topics}</p>
+          ${nextEvent.topics ? `<p class="next-event-description">${nextEvent.topics}</p>` : ''}
         </div>
-      `;
-    } else {
-      const subject = state.subjects.find(s => s.id === event.subjectId);
-      return `
-        <div class="event-item reminder-event">
-          <div class="event-header">
-            <h4>⏰ ${event.title}</h4>
-            <span class="event-date">${new Date(event.date).toLocaleDateString()} ${event.time}</span>
+      </div>
+    `;
+  } else {
+    const eventDateTime = new Date(`${nextEvent.date}T${nextEvent.time}`);
+    const daysUntil = Math.ceil((eventDateTime - today) / (1000 * 60 * 60 * 24));
+    const subject = state.subjects.find(s => s.id === nextEvent.subjectId);
+    
+    container.innerHTML = `
+      <div class="next-event-card reminder-card" style="--accent-color: ${subject?.color || '#4CAF50'}">
+        <div class="next-event-icon">⏰</div>
+        <div class="next-event-content">
+          <h3 class="next-event-title">${nextEvent.title}</h3>
+          ${subject ? `<p class="next-event-subject">${subject.name}</p>` : ''}
+          <div class="next-event-date">
+            <span class="date-text">${eventDateTime.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las ${nextEvent.time}</span>
+            <span class="days-until">${daysUntil === 0 ? 'Hoy' : daysUntil === 1 ? 'Mañana' : `En ${daysUntil} días`}</span>
           </div>
-          ${subject ? `<p class="event-subject">${subject.name}</p>` : ''}
-          ${event.description ? `<p class="event-description">${event.description}</p>` : ''}
-          <div class="event-actions">
-            <button onclick="toggleReminderComplete('${event.id}')" class="btn-small">✓</button>
-            <button onclick="editReminder('${event.id}')" class="btn-small">✏️</button>
-            <button onclick="deleteReminder('${event.id}')" class="btn-small">🗑️</button>
-          </div>
+          ${nextEvent.description ? `<p class="next-event-description">${nextEvent.description}</p>` : ''}
         </div>
-      `;
-    }
-  }).join('');
+      </div>
+    `;
+  }
 }
 
-function addEventToSelectedDay() {
-  if (!selectedDate) {
-    alert('Por favor selecciona un día primero');
+/* addEventToSelectedDay eliminada - ya existe en calendar.js */
+
+// RENDERIZADO DE TODOS LOS EVENTOS
+function renderAllEvents() {
+  const container = document.getElementById('allEventsList');
+  const filter = document.getElementById('eventFilter')?.value || 'all';
+  
+  if (!container) return;
+  
+  // Combinar recordatorios y exámenes
+  const allEvents = [];
+  
+  // Agregar recordatorios
+  state.reminders.forEach(reminder => {
+    allEvents.push({
+      ...reminder,
+      type: 'reminder',
+      datetime: new Date(`${reminder.date}T${reminder.time}`)
+    });
+  });
+  
+  // Agregar exámenes
+  state.subjects.forEach(subject => {
+    if (subject.exams) {
+      subject.exams.forEach(exam => {
+        allEvents.push({
+          ...exam,
+          type: 'exam',
+          subjectId: subject.id,
+          subjectName: subject.name,
+          datetime: new Date(`${exam.date}T${exam.time || '09:00'}`)
+        });
+      });
+    }
+  });
+  
+  // Filtrar eventos
+  let filteredEvents = allEvents;
+  const now = new Date();
+  
+  switch (filter) {
+    case 'pending':
+      filteredEvents = allEvents.filter(event => 
+        event.type === 'reminder' ? !event.completed : true
+      );
+      break;
+    case 'completed':
+      filteredEvents = allEvents.filter(event => 
+        event.type === 'reminder' && event.completed
+      );
+      break;
+    case 'upcoming':
+      const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      filteredEvents = allEvents.filter(event => 
+        event.datetime >= now && event.datetime <= weekFromNow
+      );
+      break;
+  }
+  
+  // Ordenar por fecha y hora
+  filteredEvents.sort((a, b) => a.datetime - b.datetime);
+  
+  if (filteredEvents.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <p>No hay eventos para mostrar</p>
+        <small>Agrega recordatorios o programa exámenes para verlos aquí</small>
+      </div>
+    `;
     return;
   }
   
-  // Cerrar la modal de eventos del día
-  closeModal('dayEventsModal');
-  
-  // Abrir la modal de recordatorios con la fecha preseleccionada
-  openModal('reminderModal');
-  
-  // Preseleccionar la fecha en el campo oculto
-  const dateInput = document.querySelector('#reminderModal #reminderDate');
-  const timeInput = document.querySelector('#reminderModal #reminderTime');
-  
-  if (dateInput) {
-    dateInput.value = selectedDate;
-  }
-  
-  if (timeInput) {
-    timeInput.value = '09:00'; // Hora por defecto
-    timeInput.focus(); // Enfocar el campo de hora
-  }
+  container.innerHTML = filteredEvents.map(event => {
+    const subject = event.type === 'exam' ? 
+      { name: event.subjectName } : 
+      state.subjects.find(s => s.id === event.subjectId);
+    
+    const isOverdue = event.datetime < now;
+    const isPast = event.datetime < now;
+    
+    return `
+      <div class="event-item ${event.type} ${event.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}">
+        <div class="event-icon">
+          ${event.type === 'exam' ? '📝' : '⏰'}
+        </div>
+        <div class="event-content">
+          <div class="event-header">
+            <h4 class="event-title">${event.title || event.name}</h4>
+            <div class="event-actions">
+              ${event.type === 'reminder' ? `
+                <button onclick="toggleReminderComplete('${event.id}')" class="btn-icon ${event.completed ? 'completed' : ''}">
+                  ${event.completed ? '✅' : '⭕'}
+                </button>
+                <button onclick="editReminder('${event.id}')" class="btn-icon edit">
+                  ✏️
+                </button>
+                <button onclick="deleteReminder('${event.id}')" class="btn-icon delete">
+                  🗑️
+                </button>
+              ` : `
+                <button onclick="editExam('${event.subjectId}', '${event.id}')" class="btn-icon edit">
+                  ✏️
+                </button>
+                <button onclick="deleteExam('${event.subjectId}', '${event.id}')" class="btn-icon delete">
+                  🗑️
+                </button>
+              `}
+            </div>
+          </div>
+          ${subject ? `<p class="event-subject">${subject.name}</p>` : ''}
+          <div class="event-datetime">
+            <span class="date">${event.datetime.toLocaleDateString('es-ES', { 
+              weekday: 'long', 
+              day: 'numeric', 
+              month: 'long', 
+              year: 'numeric' 
+            })}</span>
+            <span class="time">${event.time || '09:00'}</span>
+          </div>
+          ${event.description ? `<p class="event-description">${event.description}</p>` : ''}
+          ${isPast && !event.completed ? '<span class="overdue-badge">Vencido</span>' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
 }

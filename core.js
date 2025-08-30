@@ -220,17 +220,38 @@ function renderAll() {
   if (typeof populatePomodoroSubjects === 'function') {
     populatePomodoroSubjects();
   }
+  if (typeof renderAllEvents === 'function') {
+    renderAllEvents();
+  }
 }
 
-// INICIALIZACIÓN - Remover estas líneas del final del archivo
-// state = loadData();
-// migrateSubjectsToExpandedFormat();
-// initializeStreakSystem();
-// loadPomodoroConfig();
+// Inicializar aplicación
+function initializeApp() {
+  state = loadData();
+  migrateSubjectsToExpandedFormat();
+  
+  // Inicializar sistema de rachas
+  if (typeof initializeStreakSystem === 'function') {
+    initializeStreakSystem();
+  }
+  
+  // Cargar configuración del pomodoro
+  if (typeof loadPomodoroConfig === 'function') {
+    loadPomodoroConfig();
+  }
+  
+  renderAll();
+  
+  // Verificar continuidad de rachas al iniciar
+  if (typeof checkStreakContinuity === 'function') {
+    checkStreakContinuity();
+  }
+}
 
-// document.addEventListener('DOMContentLoaded', () => {
-//   renderAll();
-// });
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+  initializeApp();
+});
 
 
 function createExpandedSubject(basicSubject) {

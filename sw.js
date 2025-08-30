@@ -14,16 +14,16 @@ const STATIC_ASSETS = [
 
 // Instalación del Service Worker
 self.addEventListener('install', event => {
-  console.log('Service Worker: Instalando...');
+  // Service Worker: Instalando...
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then(cache => {
-        console.log('Service Worker: Cacheando archivos estáticos');
+        // Service Worker: Cacheando archivos estáticos
         return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
-        console.log('Service Worker: Instalación completa');
+        // Service Worker: Instalación completa
         return self.skipWaiting();
       })
       .catch(error => {
@@ -34,7 +34,7 @@ self.addEventListener('install', event => {
 
 // Activación del Service Worker
 self.addEventListener('activate', event => {
-  console.log('Service Worker: Activando...');
+  // Service Worker: Activando...
   
   event.waitUntil(
     caches.keys()
@@ -43,14 +43,14 @@ self.addEventListener('activate', event => {
           cacheNames.map(cacheName => {
             // Eliminar cachés antiguos
             if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              console.log('Service Worker: Eliminando caché antiguo:', cacheName);
+              // Service Worker: Eliminando caché antiguo
               return caches.delete(cacheName);
             }
           })
         );
       })
       .then(() => {
-        console.log('Service Worker: Activación completa');
+        // Service Worker: Activación completa
         return self.clients.claim();
       })
   );
@@ -73,7 +73,7 @@ self.addEventListener('fetch', event => {
       .then(cachedResponse => {
         // Si está en caché, devolverlo
         if (cachedResponse) {
-          console.log('Service Worker: Sirviendo desde caché:', event.request.url);
+          // Service Worker: Sirviendo desde caché
           return cachedResponse;
         }
         
@@ -91,14 +91,14 @@ self.addEventListener('fetch', event => {
             // Cachear la respuesta en caché dinámico
             caches.open(DYNAMIC_CACHE)
               .then(cache => {
-                console.log('Service Worker: Cacheando dinámicamente:', event.request.url);
+                // Service Worker: Cacheando dinámicamente
                 cache.put(event.request, responseToCache);
               });
             
             return networkResponse;
           })
           .catch(error => {
-            console.log('Service Worker: Error de red, sirviendo página offline:', error);
+            // Service Worker: Error de red, sirviendo página offline
             
             // Si es una petición de navegación y falla, servir página principal desde caché
             if (event.request.destination === 'document') {
@@ -125,19 +125,19 @@ self.addEventListener('message', event => {
 
 // Sincronización en segundo plano (para futuras funcionalidades)
 self.addEventListener('sync', event => {
-  console.log('Service Worker: Evento de sincronización:', event.tag);
+  // Service Worker: Evento de sincronización
   
   if (event.tag === 'background-sync') {
     event.waitUntil(
       // Aquí se pueden sincronizar datos cuando se recupere la conexión
-      console.log('Service Worker: Sincronización en segundo plano')
+      // Service Worker: Sincronización en segundo plano
     );
   }
 });
 
 // Notificaciones push (para futuras funcionalidades)
 self.addEventListener('push', event => {
-  console.log('Service Worker: Notificación push recibida');
+  // Service Worker: Notificación push recibida
   
   const options = {
     body: event.data ? event.data.text() : 'Nueva notificación de EstudiApp',
@@ -169,7 +169,7 @@ self.addEventListener('push', event => {
 
 // Manejar clics en notificaciones
 self.addEventListener('notificationclick', event => {
-  console.log('Service Worker: Click en notificación:', event.notification.tag);
+  // Service Worker: Click en notificación
   
   event.notification.close();
   
