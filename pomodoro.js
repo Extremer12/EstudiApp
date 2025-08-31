@@ -104,6 +104,11 @@ function updateTimer() {
       const totalTime = pomodoroState.config.workDuration * 60;
       updateFocusEffectsByProgress(pomodoroState.timeLeft, totalTime);
       updateVisualProgress(pomodoroState.timeLeft, totalTime);
+      
+      // Sincronizar con sistema de rachas
+      if (typeof updateStreakProgressFromPomodoro === 'function') {
+        updateStreakProgressFromPomodoro(pomodoroState.timeLeft, totalTime);
+      }
     }
   } else {
     if (pomodoroState.config.mode === 'advanced') {

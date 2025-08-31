@@ -15,7 +15,7 @@ function initializeStreakSystem() {
       realTimeMinutes: 0,
       sessionStartTime: null,
       isSessionActive: false,
-      minimumDailyTime: 15 // Mínimo 15 minutos para validar racha
+      minimumDailyTime: 30 // Mínimo 30 minutos para validar racha
     };
     saveData(state);
   }
@@ -104,6 +104,31 @@ function updateRealTimeTracking() {
     state.streakData.realTimeMinutes = state.streakData.todayStudyTime + sessionDuration;
   }
   
+  updateStreakDisplay();
+}
+
+// Actualizar progreso basado en el pomodoro activo
+function updateStreakProgressFromPomodoro(timeLeft, totalTime) {
+  if (!state.streakData) {
+    initializeStreakSystem();
+  }
+  
+  // Calcular tiempo transcurrido en la sesión actual
+  const elapsedTime = totalTime - timeLeft;
+  const elapsedMinutes = Math.floor(elapsedTime / 60);
+  
+  const today = new Date().toDateString();
+  
+  // Actualizar tiempo real basado en el pomodoro
+  if (state.streakData.lastStudyDate !== today) {
+    state.streakData.realTimeMinutes = elapsedMinutes;
+  } else {
+    state.streakData.realTimeMinutes = state.streakData.todayStudyTime + elapsedMinutes;
+  }
+  
+  state.streakData.lastStudyDate = today;
+  
+  // Actualizar display en tiempo real
   updateStreakDisplay();
 }
 
@@ -235,6 +260,7 @@ function updateStreakDisplay() {
   updateCompactDisplay();
   updateExpandedDisplay();
   updateHistoryDisplay();
+  updateStreakModalData();
 }
 
 // Actualizar vista compacta
@@ -429,24 +455,24 @@ function updateStreakModalData() {
 
 // Funciones auxiliares para obtener datos
 function getCurrentStreakData() {
-  return { current: state.streaks?.current || 0 };
+  return { current: state.streakData?.currentStreak || 0 };
 }
 
 function getTodayData() {
-  const today = new Date().toDateString();
-  return { minutes: state.dailyTime?.[today] || 0 };
+  if (!state.streakData) return { minutes: 0 };
+  return { minutes: state.streakData.realTimeMinutes || state.streakData.todayStudyTime || 0 };
 }
 
 function getBestStreakData() {
-  return { best: state.streaks?.best || 0 };
+  return { best: state.streakData?.bestStreak || 0 };
 }
 
 function getGoalData() {
-  return { daily: state.dailyGoal || 60 };
+  return { daily: state.streakData?.dailyGoal || 60 };
 }
 
 function checkIfTimerActive() {
-  return state.isTimerRunning || false;
+  return state.streakData?.isSessionActive || (typeof pomodoroState !== 'undefined' && pomodoroState.isRunning) || false;
 }
 
 // Configurar objetivo diario
