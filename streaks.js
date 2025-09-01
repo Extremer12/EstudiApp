@@ -2,6 +2,37 @@
 // SISTEMA DE RACHAS - STREAKS.JS
 // ========================================
 
+// Cache DOM para optimizar consultas frecuentes
+const streakDOMCache = {
+  elements: new Map(),
+  
+  get(id) {
+    if (!this.elements.has(id)) {
+      const element = document.getElementById(id);
+      if (element) {
+        this.elements.set(id, element);
+      }
+    }
+    return this.elements.get(id) || null;
+  },
+  
+  clear() {
+    this.elements.clear();
+  },
+  
+  // Precarga elementos críticos de la modal
+  preloadModalElements() {
+    const modalElements = [
+      'modalCurrentStreak', 'modalRealTimeMinutes', 'modalBestStreak',
+      'modalDailyGoalTime', 'modalTodayStudyTime', 'modalGoalTime',
+      'modalDailyProgressFill', 'modalRealTimeIndicator', 'compactCurrentStreak',
+      'streakFireIcon'
+    ];
+    
+    modalElements.forEach(id => this.get(id));
+  }
+};
+
 // Inicializar sistema de rachas
 function initializeStreakSystem() {
   if (!state.streakData) {
@@ -250,17 +281,57 @@ function checkStreakContinuity() {
   updateStreakDisplay();
 }
 
-// Actualizar visualización de rachas
+// Actualizar visualización de rachas - OPTIMIZADA
 function updateStreakDisplay() {
   if (!state.streakData) {
     initializeStreakSystem();
     return;
   }
   
-  updateCompactDisplay();
-  updateExpandedDisplay();
-  updateHistoryDisplay();
-  updateStreakModalData();
+  const currentTime = state.streakData.realTimeMinutes || state.streakData.todayStudyTime || 0;
+  const minimumTime = state.streakData.minimumDailyTime || 30;
+  const isSessionActive = state.streakData.isSessionActive;
+  
+  // Usar requestAnimationFrame para optimizar actualizaciones visuales
+  requestAnimationFrame(() => {
+    updateCompactDisplay();
+    updateExpandedDisplay();
+    updateHistoryDisplay();
+    
+    // Actualizar modal solo si está visible (lazy loading)
+    const streakModal = document.getElementById('streakStatsModal');
+    if (streakModal && streakModal.classList.contains('show')) {
+      updateStreakModalData();
+    }
+  });
+}
+
+// Función optimizada para actualizar barra de progreso
+function updateProgressBar(currentTime) {
+  const progressBar = document.querySelector('.streak-compact-progress .progress-fill');
+  if (!progressBar) return;
+  
+  const progress = Math.min((currentTime / state.streakData.dailyGoal) * 100, 100);
+  
+  // Solo actualizar si hay cambio significativo (>1%)
+  const currentWidth = parseFloat(progressBar.style.width) || 0;
+  if (Math.abs(progress - currentWidth) > 1) {
+    progressBar.style.width = progress + '%';
+    
+    // Cambiar color según progreso
+    let gradient;
+    if (progress >= 100) {
+      gradient = 'linear-gradient(90deg, #10b981, #059669)';
+    } else if (progress >= 50) {
+      gradient = 'linear-gradient(90deg, #f59e0b, #d97706)';
+    } else {
+      gradient = 'linear-gradient(90deg, #ef4444, #dc2626)';
+    }
+    
+    if (progressBar.style.background !== gradient) {
+      progressBar.style.background = gradient;
+    }
+  }
 }
 
 // Actualizar vista compacta
@@ -397,60 +468,91 @@ function updateHistoryDisplay() {
   });
 }
 
-// Función para expandir/contraer la sección de rachas
+// Función para expandir/contraer la sección de rachas - OPTIMIZADA
 function toggleStreakExpansion() {
-  // Abrir modal de estadísticas de rachas
-  updateStreakModalData();
-  openModal('streakStatsModal');
+  // Precargar elementos de la modal para mejor rendimiento
+  streakDOMCache.preloadModalElements();
+  
+  // Usar requestAnimationFrame para suavizar la apertura
+  requestAnimationFrame(() => {
+    updateStreakModalData();
+    openModal('streakStatsModal');
+  });
 }
 
-// Nueva función para actualizar los datos del modal
+// Nueva función para actualizar los datos del modal - OPTIMIZADA
 function updateStreakModalData() {
+  // Usar cache para obtener datos una sola vez
   const currentStreakData = getCurrentStreakData();
   const todayData = getTodayData();
   const bestStreakData = getBestStreakData();
   const goalData = getGoalData();
+  const isTimerActive = checkIfTimerActive();
   
-  // Actualizar elementos del modal
-  const modalCurrentStreak = document.getElementById('modalCurrentStreak');
-  const modalRealTimeMinutes = document.getElementById('modalRealTimeMinutes');
-  const modalBestStreak = document.getElementById('modalBestStreak');
-  const modalDailyGoalTime = document.getElementById('modalDailyGoalTime');
-  const modalTodayStudyTime = document.getElementById('modalTodayStudyTime');
-  const modalGoalTime = document.getElementById('modalGoalTime');
-  const modalDailyProgressFill = document.getElementById('modalDailyProgressFill');
-  const modalRealTimeIndicator = document.getElementById('modalRealTimeIndicator');
-  
-  if (modalCurrentStreak) modalCurrentStreak.textContent = currentStreakData.current || 0;
-  if (modalRealTimeMinutes) modalRealTimeMinutes.textContent = todayData.minutes || 0;
-  if (modalBestStreak) modalBestStreak.textContent = bestStreakData.best || 0;
-  if (modalDailyGoalTime) modalDailyGoalTime.textContent = goalData.daily || 60;
-  if (modalTodayStudyTime) modalTodayStudyTime.textContent = todayData.minutes || 0;
-  if (modalGoalTime) modalGoalTime.textContent = goalData.daily || 60;
-  
-  // Actualizar barra de progreso
-  if (modalDailyProgressFill && goalData.daily) {
-    const progressPercentage = Math.min((todayData.minutes / goalData.daily) * 100, 100);
-    modalDailyProgressFill.style.width = progressPercentage + '%';
+  // Usar requestAnimationFrame para optimizar actualizaciones
+  requestAnimationFrame(() => {
+    // Actualizar elementos del modal usando cache DOM
+    const modalCurrentStreak = streakDOMCache.get('modalCurrentStreak');
+    const modalRealTimeMinutes = streakDOMCache.get('modalRealTimeMinutes');
+    const modalBestStreak = streakDOMCache.get('modalBestStreak');
+    const modalDailyGoalTime = streakDOMCache.get('modalDailyGoalTime');
+    const modalTodayStudyTime = streakDOMCache.get('modalTodayStudyTime');
+    const modalGoalTime = streakDOMCache.get('modalGoalTime');
+    const modalDailyProgressFill = streakDOMCache.get('modalDailyProgressFill');
+    const modalRealTimeIndicator = streakDOMCache.get('modalRealTimeIndicator');
     
-    // Actualizar color de la barra según el progreso
-    if (progressPercentage >= 100) {
-      modalDailyProgressFill.style.background = 'linear-gradient(90deg, #10b981, #059669)';
-    } else if (progressPercentage >= 50) {
-      modalDailyProgressFill.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
-    } else {
-      modalDailyProgressFill.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+    // Batch DOM updates para mejor rendimiento
+    const updates = [
+      [modalCurrentStreak, currentStreakData.current || 0],
+      [modalRealTimeMinutes, todayData.minutes || 0],
+      [modalBestStreak, bestStreakData.best || 0],
+      [modalDailyGoalTime, goalData.daily || 60],
+      [modalTodayStudyTime, todayData.minutes || 0],
+      [modalGoalTime, goalData.daily || 60]
+    ];
+    
+    updates.forEach(([element, value]) => {
+      if (element && element.textContent !== String(value)) {
+        element.textContent = value;
+      }
+    });
+    
+    // Actualizar barra de progreso del modal con throttling
+    if (modalDailyProgressFill && goalData.daily) {
+      const progressPercentage = Math.min((todayData.minutes / goalData.daily) * 100, 100);
+      const currentWidth = parseFloat(modalDailyProgressFill.style.width) || 0;
+      
+      // Solo actualizar si hay cambio significativo
+      if (Math.abs(progressPercentage - currentWidth) > 0.5) {
+        modalDailyProgressFill.style.width = progressPercentage + '%';
+        
+        // Cambiar color según progreso
+        let gradient;
+        if (progressPercentage >= 100) {
+          gradient = 'linear-gradient(90deg, #10b981, #059669)';
+        } else if (progressPercentage >= 50) {
+          gradient = 'linear-gradient(90deg, #f59e0b, #d97706)';
+        } else {
+          gradient = 'linear-gradient(90deg, #ef4444, #dc2626)';
+        }
+        
+        if (modalDailyProgressFill.style.background !== gradient) {
+          modalDailyProgressFill.style.background = gradient;
+        }
+      }
     }
-  }
-  
-  // Actualizar indicador en tiempo real si está activo
-  if (modalRealTimeIndicator) {
-    const isTimerActive = checkIfTimerActive();
-    modalRealTimeIndicator.style.display = isTimerActive ? 'inline' : 'none';
-    if (isTimerActive) {
-      modalRealTimeIndicator.textContent = '🔴 En vivo';
+    
+    // Actualizar indicador de tiempo real
+    if (modalRealTimeIndicator) {
+      const shouldShow = isTimerActive ? 'inline' : 'none';
+      if (modalRealTimeIndicator.style.display !== shouldShow) {
+        modalRealTimeIndicator.style.display = shouldShow;
+        if (isTimerActive) {
+          modalRealTimeIndicator.textContent = '🔴 En vivo';
+        }
+      }
     }
-  }
+  });
 }
 
 // Funciones auxiliares para obtener datos
@@ -628,7 +730,7 @@ function getStreakStats() {
 
 // Configurar sugerencias de objetivos
 function setupGoalSuggestions() {
-  const suggestions = [15, 30, 45, 60, 90, 120];
+  const suggestions = [30, 45, 60, 90, 120];
   const container = document.querySelector('.goal-suggestions');
   
   if (container) {
@@ -642,6 +744,11 @@ function setupGoalSuggestions() {
 function initializeStreaks() {
   initializeStreakSystem();
   setupGoalSuggestions();
+  
+  // Precargar elementos críticos en el cache DOM
+  setTimeout(() => {
+    streakDOMCache.preloadModalElements();
+  }, 100);
   
   // Verificar continuidad de racha al cargar
   checkStreakContinuity();

@@ -6,10 +6,30 @@ const DYNAMIC_CACHE = 'estudiapp-dynamic-v1.2.0';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/app.js',
-  '/style.css',
+  '/core.js',
+  '/pomodoro.js',
+  '/streaks.js',
+  '/subjects.js',
+  '/reminders.js',
+  '/calendar.js',
   '/manifest.json',
-  // Agregar fuentes y otros recursos estáticos si los hay
+  '/css/variables.css',
+  '/css/themes.css',
+  '/css/base.css',
+  '/css/layout.css',
+  '/css/buttons.css',
+  '/css/modals.css',
+  '/css/streak-section.css',
+  '/css/animations.css',
+  '/css/timer-effects.css',
+  '/css/calendar.css',
+  '/css/events.css',
+  '/css/timer.css',
+  '/css/subjects.css',
+  '/css/forms.css',
+  '/css/responsive.css',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
 ];
 
 // Instalación del Service Worker
@@ -141,8 +161,8 @@ self.addEventListener('push', event => {
   
   const options = {
     body: event.data ? event.data.text() : 'Nueva notificación de EstudiApp',
-    icon: '/icon-192x192.png',
-    badge: '/icon-72x72.png',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/icon-72x72.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -152,12 +172,12 @@ self.addEventListener('push', event => {
       {
         action: 'explore',
         title: 'Abrir EstudiApp',
-        icon: '/icon-192x192.png'
+        icon: '/icons/icon-192x192.png'
       },
       {
         action: 'close',
         title: 'Cerrar',
-        icon: '/icon-192x192.png'
+        icon: '/icons/icon-192x192.png'
       }
     ]
   };

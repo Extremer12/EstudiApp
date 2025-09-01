@@ -246,3 +246,49 @@
     transform: none !important;
   }
 }
+
+/* ========================================
+   ANIMACIONES PARA TOASTS DE NOTIFICACIÓN
+======================================== */
+
+/* Animación de entrada desde la derecha */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animación de salida hacia la derecha */
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Estilos base para toasts */
+.error-toast,
+.success-toast {
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  border: none;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.error-toast:hover,
+.success-toast:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}

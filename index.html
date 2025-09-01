@@ -8,23 +8,47 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon-192x192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- CSS Modular - Orden de importación optimizado -->
+  <!-- Preload critical resources -->
+  <link rel="preload" href="css/variables.css" as="style">
+  <link rel="preload" href="css/base.css" as="style">
+  <link rel="preload" href="css/layout.css" as="style">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" as="style">
+  
+  <!-- Critical CSS - Above the fold -->
   <link rel="stylesheet" href="css/variables.css" />
   <link rel="stylesheet" href="css/themes.css" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/buttons.css" />
-  <link rel="stylesheet" href="css/modals.css" />
-  <link rel="stylesheet" href="css/streak-section.css" />
-  <link rel="stylesheet" href="css/animations.css" />
-  <link rel="stylesheet" href="css/timer-effects.css" />
-  <link rel="stylesheet" href="css/calendar.css" />
-  <link rel="stylesheet" href="css/events.css" />
-  <link rel="stylesheet" href="css/timer.css" />
-  <link rel="stylesheet" href="css/subjects.css" />
-  <link rel="stylesheet" href="css/forms.css" />
+  
+  <!-- Non-critical CSS - Load asynchronously -->
+  <link rel="preload" href="css/modals.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/streak-section.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/animations.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/timer-effects.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/calendar.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/events.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/timer.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/subjects.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/forms.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/responsive.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    <link rel="stylesheet" href="css/modals.css" />
+    <link rel="stylesheet" href="css/streak-section.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+    <link rel="stylesheet" href="css/timer-effects.css" />
+    <link rel="stylesheet" href="css/calendar.css" />
+    <link rel="stylesheet" href="css/events.css" />
+    <link rel="stylesheet" href="css/timer.css" />
+    <link rel="stylesheet" href="css/subjects.css" />
+    <link rel="stylesheet" href="css/forms.css" />
     <link rel="stylesheet" href="css/responsive.css" />
+  </noscript>
+  
+  <!-- Load Google Fonts asynchronously -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 </head>
 <body>
   <div class="app-container">
@@ -274,12 +298,46 @@
   </div>
 
   <!-- Al final del body, antes del cierre -->
-  <script src="core.js"></script>
-  <script src="subjects.js"></script>
-  <script src="pomodoro.js"></script>
-  <script src="reminders.js"></script>
-  <script src="streaks.js"></script>
-  <script src="calendar.js"></script>
+  <!-- Core scripts - Load with defer for better performance -->
+  <script src="core.js" defer></script>
+  <script src="subjects.js" defer></script>
+  <script src="pomodoro.js" defer></script>
+  <script src="streaks.js" defer></script>
+  
+  <!-- Non-critical modules - Lazy load -->
+  <script>
+    // Función para cargar módulos de forma diferida
+    function loadModuleLazy(src, callback) {
+      const script = document.createElement('script');
+      script.src = src;
+      script.defer = true;
+      if (callback) script.onload = callback;
+      document.head.appendChild(script);
+    }
+    
+    // Cargar módulos no críticos después de que la página esté lista
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        loadModuleLazy('reminders.js');
+        loadModuleLazy('calendar.js', () => {
+          // Inicializar calendario después de cargar el módulo
+          if (typeof initializeCalendar === 'function') {
+            initializeCalendar();
+          }
+        });
+      }, 100); // Pequeño delay para no bloquear la UI
+    });
+  </script>
+  <!-- Pruebas básicas (solo en desarrollo) - Carga diferida -->
+  <script>
+    // Cargar pruebas solo si estamos en desarrollo
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      const script = document.createElement('script');
+      script.src = 'tests/basic-tests.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  </script>
   <script>
     // Inicializar la aplicación
     document.addEventListener('DOMContentLoaded', function() {
@@ -293,9 +351,8 @@
       if (typeof initializeStreaks === 'function') {
         initializeStreaks();
       }
-      if (typeof initializeCalendar === 'function') {
-        initializeCalendar();
-      }
+      // initializeCalendar se llama después de cargar calendar.js de forma diferida
+      
       if (typeof loadPomodoroConfig === 'function') {
         loadPomodoroConfig();
       }
@@ -324,6 +381,17 @@
       // Inicializar vista previa de sesión avanzada
       if (typeof updateSessionPreview === 'function') {
         updateSessionPreview();
+      }
+      
+      // Registrar Service Worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado exitosamente:', registration);
+          })
+          .catch(error => {
+            console.log('Error al registrar Service Worker:', error);
+          });
       }
     });
     
@@ -354,7 +422,7 @@
   <div class="modal-content">
     <h3>Configurar Objetivo Diario</h3>
     <label for="goalMinutes">Tiempo de estudio diario (minutos):</label>
-    <input type="number" id="goalMinutes" min="15" max="480" value="60" step="15">
+    <input type="number" id="goalMinutes" min="30" max="480" value="60" step="15">
     <div class="goal-suggestions">
       <button onclick="setQuickGoal(30)" class="btn-suggestion">30 min</button>
       <button onclick="setQuickGoal(60)" class="btn-suggestion">1 hora</button>
@@ -384,12 +452,12 @@
             <div id="simpleConfig" class="config-tab active">
               <div class="config-section">
                 <label for="workDuration">Tiempo de trabajo (minutos):</label>
-                <input type="number" id="workDuration" min="5" max="90" value="25" step="5">
+                <input type="number" id="workDuration" min="30" max="90" value="30" step="5">
                 <div class="time-suggestions">
-                  <button onclick="setWorkTime(15)" class="btn-suggestion">15 min</button>
-                  <button onclick="setWorkTime(25)" class="btn-suggestion">25 min</button>
+                  <button onclick="setWorkTime(30)" class="btn-suggestion">30 min</button>
                   <button onclick="setWorkTime(45)" class="btn-suggestion">45 min</button>
                   <button onclick="setWorkTime(60)" class="btn-suggestion">60 min</button>
+                  <button onclick="setWorkTime(90)" class="btn-suggestion">90 min</button>
                 </div>
               </div>
               
@@ -399,7 +467,6 @@
                 <div class="time-suggestions">
                   <button onclick="setBreakTime(5)" class="btn-suggestion">5 min</button>
                   <button onclick="setBreakTime(10)" class="btn-suggestion">10 min</button>
-                  <button onclick="setBreakTime(15)" class="btn-suggestion">15 min</button>
                 </div>
               </div>
             </div>
@@ -422,7 +489,6 @@
                 <input type="number" id="breakLength" min="5" max="20" value="15" step="5">
                 <div class="time-suggestions">
                   <button onclick="setBreakLength(10)" class="btn-suggestion">10 min</button>
-                  <button onclick="setBreakLength(15)" class="btn-suggestion">15 min</button>
                   <button onclick="setBreakLength(20)" class="btn-suggestion">20 min</button>
                 </div>
               </div>

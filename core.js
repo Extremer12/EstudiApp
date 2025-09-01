@@ -25,6 +25,13 @@ let state;
 let pomodoroInterval;
 let currentSubjectModalId = null;
 
+// SISTEMA DE CACHÉ OPTIMIZADO
+let dataCache = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 5000; // 5 segundos
+let pendingSave = false;
+let saveTimeout = null;
+
 // GESTIÓN DE DATOS
 function getInitialData() {
   return {
@@ -63,6 +70,12 @@ function migrateSubjectsToExpandedFormat() {
 }
 
 function loadData() {
+  // Usar caché si está disponible y es reciente
+  const now = Date.now();
+  if (dataCache && (now - cacheTimestamp) < CACHE_DURATION) {
+    return dataCache;
+  }
+  
   try {
     const saved = localStorage.getItem('estudiapp');
     if (saved) {
@@ -79,25 +92,72 @@ function loadData() {
         data.streakData = getInitialData().streakData;
       }
       
+      // Actualizar caché
+      dataCache = data;
+      cacheTimestamp = now;
+      
       return data;
     }
   } catch (error) {
     console.error('Error cargando datos:', error);
   }
-  return getInitialData();
+  
+  const initialData = getInitialData();
+  dataCache = initialData;
+  cacheTimestamp = now;
+  return initialData;
 }
 
-function saveData(data = state) {
+function saveData(data = state, immediate = false) {
   try {
     if (!data) {
       console.warn('No data provided to save');
       return false;
     }
-    localStorage.setItem('estudiapp', JSON.stringify(data));
-    // No llamar renderAll aquí para evitar bucles infinitos
+    
+    // Actualizar caché inmediatamente
+    dataCache = data;
+    cacheTimestamp = Date.now();
+    
+    if (immediate) {
+      // Guardar inmediatamente
+      localStorage.setItem('estudiapp', JSON.stringify(data));
+      pendingSave = false;
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        saveTimeout = null;
+      }
+      return true;
+    }
+    
+    // Guardar diferido para reducir operaciones de escritura
+    if (!pendingSave) {
+      pendingSave = true;
+      saveTimeout = setTimeout(() => {
+        localStorage.setItem('estudiapp', JSON.stringify(data));
+        pendingSave = false;
+        saveTimeout = null;
+      }, 500); // Esperar 500ms antes de guardar
+    }
+    
     return true;
   } catch (error) {
     console.error('Error guardando datos:', error);
+
+
+// Función para forzar guardado inmediato
+function forceSave() {
+  if (pendingSave && saveTimeout) {
+    clearTimeout(saveTimeout);
+    localStorage.setItem('estudiapp', JSON.stringify(state));
+    pendingSave = false;
+    saveTimeout = null;
+  }
+}
+
+// Guardar datos antes de cerrar la página
+window.addEventListener('beforeunload', forceSave);
+window.addEventListener('pagehide', forceSave);
     // Mostrar notificación al usuario
     showErrorNotification('Error al guardar datos. Verifica el espacio de almacenamiento.');
     return false;
@@ -285,13 +345,139 @@ function saveGoal() {
   const goalInput = document.getElementById('goalMinutes');
   if (goalInput) {
     const minutes = parseInt(goalInput.value);
-    if (minutes >= 15 && minutes <= 480) {
+    if (minutes >= 30 && minutes <= 480) {
       if (typeof setDailyGoal === 'function') {
         setDailyGoal(minutes);
       }
       closeModal('goalModal');
     } else {
-      alert('Por favor, ingresa un objetivo entre 15 y 480 minutos.');
+      showError('Por favor, ingresa un objetivo entre 30 y 480 minutos. Mínimo requerido: 30 minutos.');
     }
+  }
+}
+
+// Funciones de validación y manejo de errores
+function validateInput(value, type, min = null, max = null) {
+  if (!value || value.trim() === '') {
+    return { valid: false, message: 'Este campo es obligatorio.' };
+  }
+  
+  if (type === 'number') {
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+      return { valid: false, message: 'Debe ser un número válido.' };
+    }
+    if (min !== null && num < min) {
+      return { valid: false, message: `El valor mínimo es ${min}.` };
+    }
+    if (max !== null && num > max) {
+      return { valid: false, message: `El valor máximo es ${max}.` };
+    }
+  }
+  
+  if (type === 'text' && min !== null && value.length < min) {
+    return { valid: false, message: `Mínimo ${min} caracteres.` };
+  }
+  
+  if (type === 'text' && max !== null && value.length > max) {
+    return { valid: false, message: `Máximo ${max} caracteres.` };
+  }
+  
+  return { valid: true };
+}
+
+function showError(message, duration = 3000) {
+  // Remover errores anteriores
+  const existingError = document.querySelector('.error-toast');
+  if (existingError) {
+    existingError.remove();
+  }
+  
+  // Crear toast de error
+  const errorToast = document.createElement('div');
+  errorToast.className = 'error-toast';
+  errorToast.textContent = message;
+  errorToast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--error-color, #ff4444);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+    max-width: 300px;
+    word-wrap: break-word;
+  `;
+  
+  document.body.appendChild(errorToast);
+  
+  // Auto-remover después del tiempo especificado
+  setTimeout(() => {
+    if (errorToast.parentNode) {
+      errorToast.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => errorToast.remove(), 300);
+    }
+  }, duration);
+}
+
+function showSuccess(message, duration = 2000) {
+  // Remover mensajes anteriores
+  const existingSuccess = document.querySelector('.success-toast');
+  if (existingSuccess) {
+    existingSuccess.remove();
+  }
+  
+  // Crear toast de éxito
+  const successToast = document.createElement('div');
+  successToast.className = 'success-toast';
+  successToast.textContent = message;
+  successToast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--success-color, #4CAF50);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+    max-width: 300px;
+    word-wrap: break-word;
+  `;
+  
+  document.body.appendChild(successToast);
+  
+  // Auto-remover después del tiempo especificado
+  setTimeout(() => {
+    if (successToast.parentNode) {
+      successToast.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => successToast.remove(), 300);
+    }
+  }, duration);
+}
+
+// Función mejorada para manejo de errores en localStorage
+function safeLocalStorageOperation(operation, key, data = null) {
+  try {
+    switch (operation) {
+      case 'get':
+        return localStorage.getItem(key);
+      case 'set':
+        localStorage.setItem(key, data);
+        return true;
+      case 'remove':
+        localStorage.removeItem(key);
+        return true;
+      default:
+        throw new Error('Operación no válida');
+    }
+  } catch (error) {
+    console.error(`Error en localStorage (${operation}):`, error);
+    showError('Error al acceder al almacenamiento local. Algunos datos pueden no guardarse.');
+    return operation === 'get' ? null : false;
   }
 }

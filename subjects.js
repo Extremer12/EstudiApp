@@ -4,8 +4,34 @@
 
 /* migrateSubjectsToExpandedFormat eliminada - ya existe en core.js */
 
+// CACHÉ DE ELEMENTOS DOM PARA OPTIMIZACIÓN
+const domCache = {
+  subjectsList: null,
+  subjectName: null,
+  subjectProfessor: null,
+  subjectSchedule: null,
+  subjectColor: null,
+  
+  // Función para obtener elementos con caché
+  get(id) {
+    if (!this[id]) {
+      this[id] = document.getElementById(id);
+    }
+    return this[id];
+  },
+  
+  // Limpiar caché si es necesario
+  clear() {
+    Object.keys(this).forEach(key => {
+      if (typeof this[key] !== 'function') {
+        this[key] = null;
+      }
+    });
+  }
+};
+
 function renderSubjects() {
-  const container = document.getElementById('subjectsList');
+  const container = domCache.get('subjectsList');
   if (!container) return;
   
   if (state.subjects.length === 0) {
@@ -13,8 +39,15 @@ function renderSubjects() {
     return;
   }
   
-  container.innerHTML = state.subjects.map(subject => `
-    <div class="subject-card" style="border-left: 4px solid ${subject.color}">
+  // Usar DocumentFragment para mejor rendimiento
+  const fragment = document.createDocumentFragment();
+  
+  state.subjects.forEach(subject => {
+    const subjectCard = document.createElement('div');
+    subjectCard.className = 'subject-card';
+    subjectCard.style.borderLeft = `4px solid ${subject.color}`;
+    
+    subjectCard.innerHTML = `
       <div class="subject-header">
         <h3>${subject.name}</h3>
         <div class="subject-actions">
@@ -29,15 +62,21 @@ function renderSubjects() {
         <p><strong>Profesor:</strong> ${subject.professor || 'No especificado'}</p>
         <p><strong>Horario:</strong> ${subject.schedule || 'No especificado'}</p>
       </div>
-    </div>
-  `).join('');
+    `;
+    
+    fragment.appendChild(subjectCard);
+  });
+  
+  // Una sola operación DOM
+  container.innerHTML = '';
+  container.appendChild(fragment);
 }
 
 function addSubject() {
-  const name = document.getElementById('subjectName').value.trim();
-  const professor = document.getElementById('subjectProfessor').value.trim();
-  const schedule = document.getElementById('subjectSchedule').value.trim();
-  const color = document.getElementById('subjectColor').value;
+  const name = domCache.get('subjectName').value.trim();
+  const professor = domCache.get('subjectProfessor').value.trim();
+  const schedule = domCache.get('subjectSchedule').value.trim();
+  const color = domCache.get('subjectColor').value;
   
   if (!name) {
     alert('El nombre de la materia es obligatorio');

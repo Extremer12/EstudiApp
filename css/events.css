@@ -469,11 +469,33 @@
 .day-events-header {
   background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
   color: white;
-  padding: 24px 60px 24px 24px;
+  padding: 24px 24px 24px 60px;
   position: relative;
   border-bottom: none;
   display: flex;
   align-items: flex-start;
+}
+
+/* Botón de cierre específico para modal de eventos del día */
+.day-events-modal .modal-close-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.day-events-modal .modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .day-events-title-section {

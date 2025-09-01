@@ -42,6 +42,37 @@
   --success-600: #2f855a;
   --success-700: #276749;
   --success-rgb: 56, 161, 105;
+  --success-color: #4CAF50;
+  
+  /* Colores de Error */
+  --error-50: #fef2f2;
+  --error-100: #fee2e2;
+  --error-200: #fecaca;
+  --error-500: #ef4444;
+  --error-600: #dc2626;
+  --error-700: #b91c1c;
+  --error-rgb: 239, 68, 68;
+  --error-color: #ff4444;
+  
+  /* Colores de Advertencia */
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-200: #fde68a;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  --warning-700: #b45309;
+  --warning-rgb: 245, 158, 11;
+  --warning-color: #ff9800;
+  
+  /* Colores de Información */
+  --info-50: #eff6ff;
+  --info-100: #dbeafe;
+  --info-200: #bfdbfe;
+  --info-500: #3b82f6;
+  --info-600: #2563eb;
+  --info-700: #1d4ed8;
+  --info-rgb: 59, 130, 246;
+  --info-color: #2196f3;
   
   /* Colores Secundarios */
   --secondary-500: #805ad5;

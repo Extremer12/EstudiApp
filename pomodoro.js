@@ -347,13 +347,24 @@ function setWorkTime(minutes) {
 // Función para guardar configuración del Pomodoro
 function savePomodoroConfig() {
   try {
-    const workDuration = document.getElementById('workDuration')?.value || 25;
+    const workDuration = document.getElementById('workDuration')?.value || 30;
     const breakDuration = document.getElementById('breakDuration')?.value || 5;
     const autoStartBreak = document.getElementById('autoStartBreak')?.checked || false;
     const autoStartWork = document.getElementById('autoStartWork')?.checked || false;
     
+    // Validar tiempo mínimo de trabajo
+    const workTime = parseInt(workDuration);
+    if (workTime < 30) {
+      if (typeof showError === 'function') {
+        showError('El tiempo mínimo de trabajo es 30 minutos para validar la racha diaria.');
+      } else {
+        alert('El tiempo mínimo de trabajo es 30 minutos para validar la racha diaria.');
+      }
+      return;
+    }
+    
     pomodoroState.config = {
-      workDuration: parseInt(workDuration),
+      workDuration: workTime,
       breakDuration: parseInt(breakDuration),
       autoStartBreak,
       autoStartWork
@@ -368,7 +379,11 @@ function savePomodoroConfig() {
     updatePomodoroDisplay();
   } catch (error) {
     console.error('Error al guardar configuración Pomodoro:', error);
-    alert('Error al guardar la configuración. Inténtalo de nuevo.');
+    if (typeof showError === 'function') {
+      showError('Error al guardar la configuración. Inténtalo de nuevo.');
+    } else {
+      alert('Error al guardar la configuración. Inténtalo de nuevo.');
+    }
   }
 }
 

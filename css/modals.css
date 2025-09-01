@@ -555,52 +555,61 @@
    MODAL DE ESTADÍSTICAS DE RACHAS - OPTIMIZADA
 ======================================== */
 
-/* Animaciones para la modal */
+/* Animaciones para la modal - OPTIMIZADAS */
 @keyframes streakModalSlideIn {
   0% {
     opacity: 0;
-    transform: translateY(-50px) scale(0.9);
+    transform: translate3d(0, -50px, 0) scale3d(0.9, 0.9, 1);
   }
   50% {
     opacity: 0.7;
-    transform: translateY(-10px) scale(0.95);
+    transform: translate3d(0, -10px, 0) scale3d(0.95, 0.95, 1);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
   }
 }
 
 @keyframes streakModalSlideOut {
   0% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
   }
   100% {
     opacity: 0;
-    transform: translateY(-30px) scale(0.95);
+    transform: translate3d(0, -30px, 0) scale3d(0.95, 0.95, 1);
   }
+}
+
+/* Optimización para elementos animados */
+.streak-modal-content *,
+.streak-modal-content *::before,
+.streak-modal-content *::after {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 
 @keyframes fireFlicker {
   0% { 
-    transform: scale(1) rotate(-1deg);
+    transform: scale3d(1, 1, 1) rotate(-1deg);
     filter: drop-shadow(0 2px 6px rgba(255, 69, 0, 0.4)) hue-rotate(0deg);
   }
   25% { 
-    transform: scale(1.05) rotate(1deg);
+    transform: scale3d(1.05, 1.05, 1) rotate(1deg);
     filter: drop-shadow(0 3px 8px rgba(255, 140, 0, 0.5)) hue-rotate(10deg);
   }
   50% { 
-    transform: scale(1.02) rotate(-0.5deg);
+    transform: scale3d(1.02, 1.02, 1) rotate(-0.5deg);
     filter: drop-shadow(0 2px 6px rgba(255, 165, 0, 0.4)) hue-rotate(-5deg);
   }
   75% { 
-    transform: scale(1.08) rotate(0.8deg);
+    transform: scale3d(1.08, 1.08, 1) rotate(0.8deg);
     filter: drop-shadow(0 4px 10px rgba(255, 69, 0, 0.6)) hue-rotate(15deg);
   }
   100% { 
-    transform: scale(1) rotate(-1deg);
+    transform: scale3d(1, 1, 1) rotate(-1deg);
     filter: drop-shadow(0 2px 6px rgba(255, 69, 0, 0.4)) hue-rotate(0deg);
   }
 }
@@ -608,11 +617,11 @@
 @keyframes flameDance {
   0%, 100% { 
     background-position: 0% 50%;
-    transform: scaleY(1);
+    transform: scale3d(1, 1, 1);
   }
   50% { 
     background-position: 100% 50%;
-    transform: scaleY(1.02);
+    transform: scale3d(1, 1.02, 1);
   }
 }
 
@@ -633,7 +642,7 @@
   }
 }
 
-/* Modal principal con sistema dinámico de colores */
+/* Modal principal con sistema dinámico de colores - OPTIMIZADA */
 .streak-modal-content {
   max-width: 520px;
   width: 95%;
@@ -645,6 +654,13 @@
   -webkit-backdrop-filter: blur(30px);
   animation: streakModalSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Optimizaciones de rendimiento */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   
   /* Modo Claro */
   background: var(--fire-gradient-2);

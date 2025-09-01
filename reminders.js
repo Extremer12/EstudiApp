@@ -391,3 +391,14 @@ function renderAllEvents() {
     `;
   }).join('');
 }
+
+// Exportar funciones al objeto window
+window.populateSubjectSelect = populateSubjectSelect;
+window.addReminder = addReminder;
+window.editReminder = editReminder;
+window.updateReminder = updateReminder;
+window.deleteReminder = deleteReminder;
+window.toggleReminderComplete = toggleReminderComplete;
+window.createExamReminders = createExamReminders;
+window.renderUpcomingEvents = renderUpcomingEvents;
+window.renderAllEvents = renderAllEvents;
