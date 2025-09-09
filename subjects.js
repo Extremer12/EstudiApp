@@ -88,8 +88,8 @@ function renderSubjects() {
         <div class="subject-actions">
           <button onclick="viewSubjectDetails('${
             subject.id
-          }')" class="btn-view-details">
-            👁️ Ver Detalles
+          }')" class="btn-view-details-icon" title="Ver detalles de la materia">
+            👁️
           </button>
         </div>
       </div>
