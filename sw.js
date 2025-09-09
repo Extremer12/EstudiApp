@@ -1,6 +1,6 @@
-const CACHE_NAME = 'estudiapp-v1.2.0';
-const STATIC_CACHE = 'estudiapp-static-v1.2.0';
-const DYNAMIC_CACHE = 'estudiapp-dynamic-v1.2.0';
+const CACHE_NAME = 'estudiapp-v1.2.1';
+const STATIC_CACHE = 'estudiapp-static-v1.2.1';
+const DYNAMIC_CACHE = 'estudiapp-dynamic-v1.2.1';
 
 // Recursos estáticos para cachear
 const STATIC_ASSETS = [

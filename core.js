@@ -261,9 +261,27 @@ function resetForm(modalId) {
 
 // RENDERIZADO PRINCIPAL
 function renderAll() {
+  // Verificar que el estado esté inicializado
+  if (!state) {
+    state = loadData();
+  }
+  
+  // Asegurar que state.subjects esté definido
+  if (!state.subjects || !Array.isArray(state.subjects)) {
+    state.subjects = [];
+  }
+  
   // Verificar que las funciones existan antes de llamarlas
-  if (typeof renderSubjects === 'function') {
-    renderSubjects();
+  if (window.location.pathname.includes('materias.html')) {
+    // En materias.html, no hacer nada aquí - materias-detail.js se encarga
+    return;
+  } else {
+    // En index.html, usar renderSubjects o renderFavoriteSubjects
+    if (typeof renderFavoriteSubjects === 'function') {
+      renderFavoriteSubjects();
+    } else if (typeof renderSubjects === 'function') {
+      renderSubjects();
+    }
   }
   if (typeof renderUpcomingEvents === 'function') {
     renderUpcomingEvents();
@@ -288,7 +306,11 @@ function renderAll() {
 // Inicializar aplicación
 function initializeApp() {
   state = loadData();
-  migrateSubjectsToExpandedFormat();
+  
+  // Asegurar que state.subjects esté inicializado
+  if (!state.subjects) {
+    state.subjects = [];
+  }
   
   // Inicializar sistema de rachas
   if (typeof initializeStreakSystem === 'function') {
@@ -300,7 +322,10 @@ function initializeApp() {
     loadPomodoroConfig();
   }
   
-  renderAll();
+  // Solo llamar renderAll en páginas que no sean materias.html
+  if (!window.location.pathname.includes('materias.html')) {
+    renderAll();
+  }
   
   // Verificar continuidad de rachas al iniciar
   if (typeof checkStreakContinuity === 'function') {
@@ -321,14 +346,28 @@ function createExpandedSubject(basicSubject) {
     professor: basicSubject.professor || '',
     schedule: basicSubject.schedule || '',
     color: basicSubject.color || '#4CAF50',
+    isFavorite: basicSubject.isFavorite || false,
     exams: basicSubject.exams || [],
     consultationHours: basicSubject.consultationHours || [],
     materials: basicSubject.materials || [],
+    studyMaterials: basicSubject.studyMaterials || {
+      pdfs: [],
+      documents: [],
+      links: [],
+      videos: []
+    },
+    tasks: basicSubject.tasks || [],
+    deadlines: basicSubject.deadlines || [],
     notes: basicSubject.notes || '',
     progress: basicSubject.progress || {
       completedTasks: 0,
       totalTasks: 0,
       studyHours: 0
+    },
+    studyPlan: basicSubject.studyPlan || {
+      weeklyGoals: [],
+      completedTopics: [],
+      nextTopics: []
     }
   };
 }

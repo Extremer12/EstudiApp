@@ -1,6 +1,11 @@
 /* ========================================
-   LISTA DE MATERIAS
+   LISTA DE MATERIAS - VERSIÓN PROFESIONAL MEJORADA
+   Importar estilos profesionales
 ======================================== */
+
+@import url("subjects-professional.css");
+
+/* Estilos base mantenidos para compatibilidad */
 
 /* Lista de Materias */
 #subjectsList {
@@ -84,7 +89,8 @@
   transform: translateY(-1px);
 }
 
-.btn-edit, .btn-delete {
+.btn-edit,
+.btn-delete {
   background: none;
   border: none;
   padding: var(--space-xs);
@@ -147,13 +153,18 @@
 
 /* Efecto de brillo en hover */
 #subjectsList li::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s ease;
 }
 
@@ -258,7 +269,8 @@
 
 /* Animaciones */
 @keyframes urgentPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: var(--shadow-sm);
   }
   50% {
@@ -387,7 +399,7 @@
 }
 
 .color-option::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -404,14 +416,30 @@
 }
 
 /* Colores disponibles */
-.color-option[data-color="red"] { background-color: #ef4444; }
-.color-option[data-color="blue"] { background-color: #3b82f6; }
-.color-option[data-color="green"] { background-color: #10b981; }
-.color-option[data-color="yellow"] { background-color: #f59e0b; }
-.color-option[data-color="purple"] { background-color: #8b5cf6; }
-.color-option[data-color="pink"] { background-color: #ec4899; }
-.color-option[data-color="indigo"] { background-color: #6366f1; }
-.color-option[data-color="orange"] { background-color: #f97316; }
+.color-option[data-color="red"] {
+  background-color: #ef4444;
+}
+.color-option[data-color="blue"] {
+  background-color: #3b82f6;
+}
+.color-option[data-color="green"] {
+  background-color: #10b981;
+}
+.color-option[data-color="yellow"] {
+  background-color: #f59e0b;
+}
+.color-option[data-color="purple"] {
+  background-color: #8b5cf6;
+}
+.color-option[data-color="pink"] {
+  background-color: #ec4899;
+}
+.color-option[data-color="indigo"] {
+  background-color: #6366f1;
+}
+.color-option[data-color="orange"] {
+  background-color: #f97316;
+}
 
 /* Botones del formulario */
 .form-actions {
@@ -468,25 +496,25 @@
     padding: var(--space-sm) var(--space-md);
     margin: var(--space-xs) 0;
   }
-  
+
   .subject-item {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-xs);
   }
-  
+
   .subject-info {
     align-self: flex-end;
   }
-  
+
   .color-picker {
     justify-content: center;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .btn-cancel,
   .btn-save {
     width: 100%;
@@ -494,13 +522,258 @@
   }
 }
 
+/* ========================================
+   SISTEMA DE FAVORITOS
+======================================== */
+.subject-title-section {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.btn-favorite {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.btn-favorite:hover {
+  background-color: var(--primary-50);
+  transform: scale(1.1);
+}
+
+.btn-favorite.favorite-active {
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+.btn-favorite.favorite-inactive {
+  color: var(--text-tertiary);
+}
+
+.btn-favorite.favorite-inactive:hover {
+  color: var(--primary-500);
+}
+
+/* ========================================
+   BOTÓN VER MÁS
+======================================== */
+.view-more-card {
+  margin-top: var(--space-md);
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.btn-view-more {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  box-shadow: var(--btn-shadow-3d);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-view-more::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left var(--transition-slow);
+}
+
+.btn-view-more:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--btn-shadow-3d-hover);
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+}
+
+.btn-view-more:hover::before {
+  left: 100%;
+}
+
+.btn-view-more:active {
+  transform: translateY(0);
+  box-shadow: var(--btn-shadow-3d-active);
+}
+
+.view-more-icon {
+  font-size: 1.2rem;
+}
+
+.view-more-text {
+  flex: 1;
+}
+
+.view-more-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
 @media (max-width: 480px) {
   .color-option {
     width: 28px;
     height: 28px;
   }
-  
+
   .new-subject-form {
     padding: var(--space-md);
+  }
+}
+
+/* ========================================
+   BOTÓN VER DETALLES
+======================================== */
+.btn-view-details {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.btn-view-details:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
+  filter: brightness(1.1);
+}
+
+.btn-view-details:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* Responsive para botón ver detalles */
+@media (max-width: 768px) {
+  .btn-view-details {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-view-details {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    min-width: 90px;
+  }
+}
+
+/* Sección centrada */
+.centered-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  margin: 2rem auto;
+  max-width: 1200px;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .add-subject-container {
+    margin: 1.5rem 0;
+    padding: 0.5rem;
+  }
+}
+
+/* Enlace "Ver más detalles" */
+.ver-mas-detalles {
+  text-align: center;
+  margin-top: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.ver-mas-detalles:hover {
+  background: var(--surface-card);
+  border-color: var(--primary-500);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ver-mas-detalles a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--text-base);
+  transition: color var(--transition-fast);
+}
+
+.ver-mas-detalles a:hover {
+  color: var(--primary-700);
+}
+
+.ver-mas-detalles a::after {
+  content: "→";
+  font-size: var(--text-lg);
+  transition: transform var(--transition-fast);
+}
+
+.ver-mas-detalles:hover a::after {
+  transform: translateX(4px);
+}
+
+@media (max-width: 768px) {
+  .ver-mas-detalles {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+  }
+  
+  .ver-mas-detalles a {
+    font-size: var(--text-sm);
   }
 }

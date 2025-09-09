@@ -1,0 +1,252 @@
+/* ===== NAVIGATION STYLES ===== */
+
+/* Header Layout - Styles moved to layout.css to avoid conflicts */
+/* Header styles are now handled by layout.css */
+
+/* Navigation Menu */
+.header-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-menu {
+  position: relative;
+}
+
+/* Navigation Toggle Button (Hamburger) */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.hamburger {
+  width: 2rem;
+  height: 0.25rem;
+  background: var(--text-color);
+  border-radius: 10px;
+  transition: all 0.3s linear;
+  position: relative;
+  transform-origin: 1px;
+}
+
+.nav-toggle.active .hamburger:nth-child(1) {
+  transform: rotate(45deg);
+}
+
+.nav-toggle.active .hamburger:nth-child(2) {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.nav-toggle.active .hamburger:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+/* Navigation List */
+.nav-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0.5rem;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: var(--text-secondary);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  background: var(--hover-bg);
+  color: var(--text-color);
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+.nav-link.active:hover {
+  background: var(--primary-hover);
+}
+
+.nav-icon {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.nav-text {
+  font-size: 0.9rem;
+}
+
+/* Header Right */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet and Mobile */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+    position: relative;
+  }
+  
+  .nav-toggle {
+    display: none !important;
+  }
+  
+  .nav-list {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    height: auto;
+    background: transparent;
+    padding: 0;
+    gap: 0.5rem;
+    transition: none;
+    border: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: auto;
+    box-shadow: none;
+  }
+  
+  .nav-link {
+    padding: 0.5rem 1rem;
+    justify-content: center;
+    border-radius: 0.5rem;
+  }
+  
+  .nav-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 1.1rem;
+  }
+  
+  .nav-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .header {
+    padding: 0.75rem;
+  }
+  
+  .header-left h1 {
+    font-size: 1.25rem;
+  }
+  
+  .nav-list {
+    gap: 0.25rem;
+  }
+  
+  .nav-link {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .nav-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.nav-list.active {
+  animation: slideInRight 0.3s ease;
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+.nav-toggle:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.nav-link:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .nav-list,
+  .nav-link,
+  .hamburger,
+  .nav-overlay {
+    transition: none;
+  }
+  
+  .nav-list.active {
+    animation: none;
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+
+[data-theme="dark"] .nav-list {
+  background: var(--card-bg);
+  border-left-color: var(--border-color);
+}
+
+[data-theme="dark"] .hamburger {
+  background: var(--text-color);
+}
+
+[data-theme="dark"] .nav-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}

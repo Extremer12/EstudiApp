@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles de Materias - EstudiApp</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="css/variables.css" as="style">
+    <link rel="preload" href="css/base.css" as="style">
+    <link rel="preload" href="css/layout.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" as="style">
+    
+    <!-- Critical CSS - Above the fold -->
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/buttons.css" />
+    <link rel="stylesheet" href="css/navigation.css" />
+    <link rel="stylesheet" href="css/menu.css" />
+    <link rel="stylesheet" href="css/loading.css" />
+    
+    <!-- Page specific CSS -->
+    <link rel="stylesheet" href="css/subjects.css">
+    <link rel="stylesheet" href="css/subjects-professional.css">
+    <link rel="stylesheet" href="css/materias-detail.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/modals.css">
+    
+    <!-- Non-critical CSS - Load asynchronously -->
+    <link rel="preload" href="css/animations.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="icons/icon-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1>EstudiApp</h1>
+      </div>
+
+      <div class="header-right">
+        <div class="menu-container">
+          <button id="menuToggle" class="menu-toggle" aria-label="Abrir menú">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <nav id="sidebarMenu" class="sidebar-menu">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">EstudiApp</h2>
+        <button id="sidebarClose" class="sidebar-close" aria-label="Cerrar menú">
+          ×
+        </button>
+      </div>
+      
+      <div class="sidebar-content">
+        <ul class="sidebar-nav">
+          <li><a href="index.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a></li>
+          <li><a href="materias.html" class="nav-link"><span class="nav-icon">📚</span>Materias Favoritas</a></li>
+          <li><a href="materias-detalle.html" class="nav-link active"><span class="nav-icon">📋</span>Todas las Materias</a></li>
+        </ul>
+        
+        <div class="sidebar-divider"></div>
+        
+        <div class="sidebar-footer">
+          <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Cambiar tema">
+            <span class="theme-icon">🌙</span>
+            <span class="theme-text">Modo Oscuro</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Title -->
+        <section class="page-title-section">
+            <div class="page-title-content">
+                <div class="title-left">
+                    <h2>Todas las Materias</h2>
+                    <p>Gestiona y organiza todas tus materias académicas</p>
+                </div>
+                <div class="title-right">
+                    <a href="index.html" class="btn-primary">
+                        <span>+ Agregar Nueva Materia</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters and Search -->
+        <section class="filters-section">
+            <div class="filters-container">
+                <div class="search-box">
+                    <input type="text" id="searchSubjects" placeholder="Buscar materias..." class="search-input">
+                    <span class="search-icon">🔍</span>
+                </div>
+                
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">Todas</button>
+                    <button class="filter-btn" data-filter="favorites">Favoritas</button>
+                    <button class="filter-btn" data-filter="active">Activas</button>
+                </div>
+                
+                <div class="view-options">
+                    <button class="view-btn active" data-view="grid" title="Vista de cuadrícula">⊞</button>
+                    <button class="view-btn" data-view="list" title="Vista de lista">☰</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Subjects Section -->
+        <section id="subjects-section" class="subjects-section">
+            <div id="materiasContainer" class="subjects-grid">
+                <!-- Las materias se cargarán dinámicamente aquí -->
+            </div>
+            
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">📚</div>
+                <h3>No hay materias registradas</h3>
+                <p>Comienza agregando tu primera materia desde el dashboard</p>
+                <a href="index.html" class="btn-primary">Ir al Dashboard</a>
+            </div>
+        </section>
+
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Dark mode initialization
+    function initDarkMode() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
+    // Initialize on load
+    initDarkMode();
+  </script>
+  
+  <!-- Page Scripts -->
+  <script src="core.js"></script>
+  <script src="subjects.js"></script>
+  <script src="js/materias-detail.js"></script>
+  <script src="js/menu.js"></script>
+</body>
+</html>

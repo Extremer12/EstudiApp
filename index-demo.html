@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo - Materias Favoritas Mejoradas - EstudiApp</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/buttons.css" />
+    <link rel="stylesheet" href="css/subjects.css" />
+    <link rel="stylesheet" href="css/subjects-professional.css" />
+    <link rel="stylesheet" href="css/subjects-favorites.css" />
+
+    <style>
+      /* Estilos adicionales para la demo */
+      .demo-header {
+        background: var(--subject-gradient-1);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        border-radius: 24px;
+      }
+
+      .demo-header h1 {
+        margin: 0 0 1rem 0;
+        font-size: 2.5rem;
+        font-weight: 800;
+      }
+
+      .demo-header p {
+        margin: 0;
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .demo-controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .demo-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--subject-gradient-3);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .demo-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+      }
+
+      .main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <main class="main">
+        <!-- Demo Header -->
+        <div class="demo-header">
+          <h1>⭐ Materias Favoritas Mejoradas</h1>
+          <p>
+            Diseño organizado, estético y simétrico para el dashboard principal
+          </p>
+        </div>
+
+        <!-- Demo Controls -->
+        <div class="demo-controls">
+          <button class="demo-btn" onclick="addDemoFavorites()">
+            Agregar Materias Favoritas
+          </button>
+          <button class="demo-btn" onclick="addMoreSubjects()">
+            Agregar Más Materias
+          </button>
+          <button class="demo-btn" onclick="clearAllSubjects()">
+            Limpiar Todo
+          </button>
+          <button class="demo-btn" onclick="toggleTheme()">Cambiar Tema</button>
+        </div>
+
+        <!-- Subjects Section Mejorada -->
+        <section class="card subjects-section">
+          <div class="card-header">
+            <h2>Mis Materias Favoritas</h2>
+            <a
+              href="materias.html"
+              class="btn-small btn-link"
+              title="Ir a gestionar materias"
+            >
+              📚
+            </a>
+          </div>
+          <div id="subjectsList" class="subjects-expandable-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // Estado demo
+      let demoState = {
+        subjects: [],
+      };
+
+      // Simular el estado global
+      window.state = demoState;
+
+      // Funciones demo
+      function addDemoFavorites() {
+        const favoriteSubjects = [
+          {
+            id: "1",
+            name: "Matemáticas Avanzadas",
+            professor: "Dr. Ana García",
+            schedule: "Lunes y Miércoles 8:00-10:00",
+            color: "#667eea",
+            isFavorite: true,
+          },
+          {
+            id: "2",
+            name: "Física Cuántica",
+            professor: "Prof. Carlos Mendez",
+            schedule: "Martes y Jueves 10:00-12:00",
+            color: "#f093fb",
+            isFavorite: true,
+          },
+          {
+            id: "3",
+            name: "Programación Web",
+            professor: "Ing. María López",
+            schedule: "Viernes 14:00-18:00",
+            color: "#4facfe",
+            isFavorite: true,
+          },
+        ];
+
+        demoState.subjects = favoriteSubjects;
+        renderDemoSubjects();
+        showNotification(
+          "Materias favoritas agregadas exitosamente",
+          "success"
+        );
+      }
+
+      function addMoreSubjects() {
+        const moreSubjects = [
+          {
+            id: "4",
+            name: "Historia del Arte",
+            professor: "Dra. Elena Ruiz",
+            schedule: "Lunes 16:00-18:00",
+            color: "#43e97b",
+            isFavorite: false,
+          },
+          {
+            id: "5",
+            name: "Química Orgánica",
+            professor: "Dr. Roberto Silva",
+            schedule: "Miércoles y Viernes 9:00-11:00",
+            color: "#fa709a",
+            isFavorite: false,
+          },
+        ];
+
+        demoState.subjects = [...demoState.subjects, ...moreSubjects];
+        renderDemoSubjects();
+        showNotification("Materias adicionales agregadas", "success");
+      }
+
+      function clearAllSubjects() {
+        demoState.subjects = [];
+        renderDemoSubjects();
+        showNotification("Todas las materias han sido eliminadas", "info");
+      }
+
+      function renderDemoSubjects() {
+        const container = document.getElementById("subjectsList");
+
+        if (demoState.subjects.length === 0) {
+          container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No hay materias registradas</h3>
+                        <p>Ve a la sección de Materias para agregar tu primera materia</p>
+                    </div>
+                `;
+          return;
+        }
+
+        // Filtrar solo las 3 materias favoritas
+        const favoriteSubjects = demoState.subjects
+          .filter((subject) => subject.isFavorite)
+          .slice(0, 3);
+
+        // Si no hay materias favoritas, mostrar las primeras 3
+        const subjectsToShow =
+          favoriteSubjects.length > 0
+            ? favoriteSubjects
+            : demoState.subjects.slice(0, 3);
+
+        const fragment = document.createDocumentFragment();
+
+        subjectsToShow.forEach((subject) => {
+          const subjectCard = document.createElement("div");
+          subjectCard.className = "subject-card";
+          subjectCard.style.setProperty(
+            "--subject-color",
+            subject.color || "#667eea"
+          );
+
+          subjectCard.innerHTML = `
+                    <div class="subject-header">
+                        <div class="subject-title-section">
+                            <button class="btn-favorite ${
+                              subject.isFavorite
+                                ? "favorite-active"
+                                : "favorite-inactive"
+                            }" 
+                                    onclick="toggleFavorite('${subject.id}')" 
+                                    title="${
+                                      subject.isFavorite
+                                        ? "Quitar de favoritos"
+                                        : "Agregar a favoritos"
+                                    }">
+                                ${subject.isFavorite ? "⭐" : "☆"}
+                            </button>
+                            <h3>${subject.name}</h3>
+                        </div>
+                        <div class="subject-actions">
+                            <button onclick="viewDetails('${
+                              subject.id
+                            }')" class="btn-view-details">
+                                👁️ Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                    <div class="subject-info">
+                        <p><strong>Profesor:</strong> ${
+                          subject.professor || "No especificado"
+                        }</p>
+                        <p><strong>Horario:</strong> ${
+                          subject.schedule || "No especificado"
+                        }</p>
+                    </div>
+                `;
+
+          fragment.appendChild(subjectCard);
+        });
+
+        // Agregar botón "Ver más" si hay más materias
+        if (demoState.subjects.length > 3) {
+          const viewMoreCard = document.createElement("div");
+          viewMoreCard.className = "view-more-card";
+          viewMoreCard.innerHTML = `
+                    <button onclick="goToMaterias()" class="btn-view-more">
+                        <span class="view-more-icon">📚</span>
+                        <span class="view-more-text">Ver todas las materias</span>
+                        <span class="view-more-count">(${demoState.subjects.length})</span>
+                    </button>
+                `;
+          fragment.appendChild(viewMoreCard);
+        }
+
+        container.innerHTML = "";
+        container.appendChild(fragment);
+      }
+
+      function toggleFavorite(subjectId) {
+        const subject = demoState.subjects.find((s) => s.id === subjectId);
+        if (subject) {
+          subject.isFavorite = !subject.isFavorite;
+          renderDemoSubjects();
+          showNotification(
+            `${subject.name} ${
+              subject.isFavorite ? "agregada a" : "removida de"
+            } favoritos`,
+            "success"
+          );
+        }
+      }
+
+      function viewDetails(subjectId) {
+        const subject = demoState.subjects.find((s) => s.id === subjectId);
+        if (subject) {
+          showNotification(`Abriendo detalles de ${subject.name}`, "info");
+        }
+      }
+
+      function goToMaterias() {
+        showNotification("Navegando a la página de Materias...", "info");
+      }
+
+      function toggleTheme() {
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        showNotification(
+          `Tema cambiado a ${newTheme === "dark" ? "oscuro" : "claro"}`,
+          "info"
+        );
+      }
+
+      // Función de notificaciones
+      function showNotification(message, type = "info") {
+        const notification = document.createElement("div");
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+                <div class="notification-content">
+                    <span class="notification-icon">${
+                      type === "success" ? "✅" : type === "error" ? "❌" : "ℹ️"
+                    }</span>
+                    <span class="notification-message">${message}</span>
+                </div>
+            `;
+
+        notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${
+                  type === "success"
+                    ? "var(--subject-gradient-4)"
+                    : type === "error"
+                    ? "var(--subject-gradient-2)"
+                    : "var(--subject-gradient-1)"
+                };
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 16px;
+                box-shadow: var(--subject-shadow-lg);
+                z-index: 10001;
+                font-weight: 600;
+                transform: translateX(100%);
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                max-width: 400px;
+            `;
+
+        notification.querySelector(".notification-content").style.cssText = `
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.transform = "translateX(0)";
+        }, 100);
+
+        setTimeout(() => {
+          notification.style.transform = "translateX(100%)";
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification);
+            }
+          }, 400);
+        }, 4000);
+      }
+
+      // Inicializar
+      document.addEventListener("DOMContentLoaded", function () {
+        // Inicializar tema
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+
+        // Mostrar estado vacío inicialmente
+        renderDemoSubjects();
+
+        // Mensaje de bienvenida
+        setTimeout(() => {
+          showNotification(
+            "¡Bienvenido a la demo de Materias Favoritas Mejoradas! 🎉",
+            "success"
+          );
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

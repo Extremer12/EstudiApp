@@ -96,6 +96,21 @@ function editReminder(reminderId) {
   openModal('reminderModal');
 }
 
+function updateReminder(reminderId, updatedData) {
+  const reminderIndex = state.reminders.findIndex(r => r.id === reminderId);
+  if (reminderIndex !== -1) {
+    state.reminders[reminderIndex] = {
+      ...state.reminders[reminderIndex],
+      ...updatedData
+    };
+    
+    saveData();
+    renderAll(); // Actualizar todas las secciones
+    return true;
+  }
+  return false;
+}
+
 function deleteReminder(reminderId) {
   if (confirm('¿Estás seguro de que quieres eliminar este recordatorio?')) {
     state.reminders = state.reminders.filter(r => r.id !== reminderId);
@@ -399,6 +414,6 @@ window.editReminder = editReminder;
 window.updateReminder = updateReminder;
 window.deleteReminder = deleteReminder;
 window.toggleReminderComplete = toggleReminderComplete;
-window.createExamReminders = createExamReminders;
+
 window.renderUpcomingEvents = renderUpcomingEvents;
 window.renderAllEvents = renderAllEvents;

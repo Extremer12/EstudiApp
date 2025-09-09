@@ -6,6 +6,26 @@
   margin: 0 auto;
   padding: clamp(1rem, 2vw, 2rem);
   min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Asegurar que el contenedor principal no interfiera con el menú */
+@media (max-width: 768px) {
+  .app-container {
+    padding: clamp(0.75rem, 1.5vw, 1.5rem);
+  }
+  
+  .header {
+    padding: var(--space-md) 0;
+    margin-bottom: var(--space-lg);
+  }
+  
+  .header h1 {
+    font-size: var(--text-xl);
+  }
 }
 
 /* ========================================
@@ -19,6 +39,8 @@
   padding: var(--space-lg) 0;
   border-bottom: 2px solid var(--border-light);
   position: relative;
+  overflow: visible;
+  z-index: 100;
 }
 
 .header::after {
@@ -46,6 +68,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-lg);
+  position: relative;
+  overflow: visible;
 }
 
 .points-display {

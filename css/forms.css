@@ -52,7 +52,7 @@
   border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  background: var(--surface-elevated);
+  background: var(--surface-card);
   color: var(--text-primary);
   transition: all var(--transition-fast);
   box-sizing: border-box;
@@ -112,7 +112,36 @@
 
 .form-group.success input:focus,
 .form-group.success textarea:focus {
-  box-shadow: 0 0 0 3px rgba(var(--success-500-rgb), 0.1);
+  box-shadow: 0 0 0 3px rgba(var(--success-rgb), 0.1);
+}
+
+/* Estilos específicos para modo oscuro */
+[data-theme="dark"] .form-group input[type="text"],
+[data-theme="dark"] .form-group input[type="email"],
+[data-theme="dark"] .form-group input[type="password"],
+[data-theme="dark"] .form-group input[type="number"],
+[data-theme="dark"] .form-group textarea {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+[data-theme="dark"] .form-group input[type="text"]:focus,
+[data-theme="dark"] .form-group input[type="email"]:focus,
+[data-theme="dark"] .form-group input[type="password"]:focus,
+[data-theme="dark"] .form-group input[type="number"]:focus,
+[data-theme="dark"] .form-group textarea:focus {
+  background: var(--surface-card);
+  border-color: var(--primary-400);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-group input[type="text"]:hover,
+[data-theme="dark"] .form-group input[type="email"]:hover,
+[data-theme="dark"] .form-group input[type="password"]:hover,
+[data-theme="dark"] .form-group input[type="number"]:hover,
+[data-theme="dark"] .form-group textarea:hover {
+  border-color: var(--primary-500);
 }
 
 .success-message {
